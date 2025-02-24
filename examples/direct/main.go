@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"image/color"
 	"log"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kettek/rebui"
@@ -11,7 +10,7 @@ import (
 )
 
 type Game struct {
-	layout *rebui.Layout
+	layout rebui.Layout
 }
 
 func (g *Game) Update() error {
@@ -30,15 +29,16 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	g := &Game{}
 
-	bytes, _ := os.ReadFile("buttons.json")
-
-	layout, err := rebui.NewLayout(string(bytes))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	g.layout = layout
-	g.layout.Generate()
+	g.layout.AddNode(rebui.Node{
+		Type:            "MyButton",
+		Width:           "50%",
+		Height:          "50",
+		X:               "50%",
+		Y:               "50",
+		OriginX:         "-50%",
+		OriginY:         "-50%",
+		BackgroundColor: "red",
+	})
 
 	ebiten.SetWindowSize(320, 240)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
@@ -53,27 +53,19 @@ type MyButton struct {
 }
 
 func (b *MyButton) HandlePointerIn(e rebui.PointerInEvent) {
-	fmt.Println("PointerIn", e)
+	b.SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
 }
 
 func (b *MyButton) HandlePointerOut(e rebui.PointerOutEvent) {
-	fmt.Println("PointerOut", e)
-}
-
-func (b *MyButton) HandlePointerMove(e rebui.PointerMoveEvent) {
-	fmt.Println("PointerMove", e)
+	b.SetBackgroundColor(color.NRGBA{255, 0, 0, 255})
 }
 
 func (b *MyButton) HandlePointerPress(e rebui.PointerPressEvent) {
-	fmt.Println("PointerPress", e)
+	b.SetBackgroundColor(color.NRGBA{0, 0, 255, 255})
 }
 
 func (b *MyButton) HandlePointerRelease(e rebui.PointerReleaseEvent) {
-	fmt.Println("Release", e)
-}
-
-func (b *MyButton) HandlePointerPressed(e rebui.PointerPressedEvent) {
-	fmt.Println("Pressed", e)
+	b.SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
 }
 
 func init() {

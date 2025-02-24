@@ -16,9 +16,11 @@ import (
 type Layout struct {
 	RenderTarget  *ebiten.Image
 	ClampPointers bool
+	generated     bool
 	Nodes         []*Node
 	currentState  currentState
 	//
+	relayout            bool
 	pressedMouseButtons []ebiten.MouseButton
 	lastMouseX          int
 	lastMouseY          int
@@ -58,24 +60,51 @@ func (l *Layout) Parse(src string) error {
 	return reader.Decode(&l.Nodes)
 }
 
-// Generate creates proper Elements from the list of Nodes and does layout.
-func (l *Layout) Generate(ow, oh float64) {
+// Generate creates proper Elements from the list of Nodes.
+func (l *Layout) Generate() {
 	for _, n := range l.Nodes {
-		l.generateNode(n, ow, oh)
+		l.generateNode(n)
+	}
+	l.relayout = true
+}
+
+// Layout repositions all nodes.
+func (l *Layout) Layout(ow, oh float64) {
+	for _, n := range l.Nodes {
+		l.layoutNode(n, ow, oh)
 	}
 }
 
-func (l *Layout) getEvents() (events []Event) {
-	x, y := ebiten.CursorPosition()
-	w, h := ebiten.WindowSize()
-	w2, h2 := w, h
+// AddNode adds the given node and generates it.
+func (l *Layout) AddNode(n Node) {
+	l.Nodes = append(l.Nodes, &n)
+	l.generateNode(&n)
+	l.relayout = true
+}
 
-	// Scale x/y if needed
+func (l *Layout) getCursor() (x, y int) {
 	if l.RenderTarget != nil {
-		w2, h2 = l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
-		x = int((float64(x) / float64(w)) * float64(w2))
-		y = int((float64(y) / float64(h)) * float64(h2))
+		w, h := l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
+		x, y = ebiten.CursorPosition()
+		x = int((float64(x) / float64(w)) * float64(w))
+		y = int((float64(y) / float64(h)) * float64(h))
+	} else {
+		x, y = ebiten.CursorPosition()
 	}
+	return
+}
+
+func (l *Layout) getSize() (w, h int) {
+	w, h = ebiten.WindowSize()
+	if l.RenderTarget != nil {
+		w, h = l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
+	}
+	return
+}
+
+func (l *Layout) getEvents() (events []Event) {
+	x, y := l.getCursor()
+	w, h := l.getSize()
 
 	if l.ClampPointers && (x < 0 || y < 0 || x >= w || y >= h) {
 		return
@@ -194,6 +223,12 @@ func (l *Layout) getEvents() (events []Event) {
 
 // Update collects events and propagates them to the contained Elements.
 func (l *Layout) Update() {
+	if l.relayout {
+		w, h := l.getSize()
+		l.Layout(float64(w), float64(h))
+		l.relayout = false
+	}
+
 	// TODO: Allow passing in a block events list, where various event types can be prevented from occurring -- this might come in use.
 	if events := l.getEvents(); len(events) > 0 {
 		for _, e := range events {
@@ -237,11 +272,14 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (l *Layout) generateNode(n *Node, ow, oh float64) {
+func (l *Layout) generateNode(n *Node) {
+	// Might as well prevent re-generation.
+	if n.Element != nil {
+		return
+	}
 	for k, h := range handlers {
 		if k == n.Type {
 			n.Element = reflect.New(reflect.TypeOf(h).Elem()).Interface().(Element)
-			l.layoutNode(n, ow, oh)
 			// Call our setter interfaces if desired.
 			if bcs, ok := n.Element.(BackgroundColorSetter); ok {
 				bcs.SetBackgroundColor(stringToColor(n.BackgroundColor, DefaultTheme.BackgroundColor))

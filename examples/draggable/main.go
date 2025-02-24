@@ -37,7 +37,7 @@ func main() {
 	}
 
 	g.layout = layout
-	g.layout.Generate(320, 240)
+	g.layout.Generate()
 
 	ebiten.SetWindowSize(320, 240)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
