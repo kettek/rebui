@@ -26,6 +26,8 @@ type Layout struct {
 	pressedMouseButtons []ebiten.MouseButton
 	lastMouseX          int
 	lastMouseY          int
+	lastWidth           float64
+	lastHeight          float64
 }
 
 // GetByID returns the given node by its ID.
@@ -72,8 +74,12 @@ func (l *Layout) Generate() {
 
 // Layout repositions all nodes.
 func (l *Layout) Layout(ow, oh float64) {
-	for _, n := range l.Nodes {
-		l.layoutNode(n, ow, oh)
+	if l.lastWidth != ow || l.lastHeight != oh {
+		for _, n := range l.Nodes {
+			l.layoutNode(n, ow, oh)
+		}
+		l.lastWidth = ow
+		l.lastHeight = oh
 	}
 }
 
