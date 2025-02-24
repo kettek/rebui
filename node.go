@@ -21,6 +21,8 @@ type Node struct {
 	BorderColor     string
 	VerticalAlign   Alignment
 	HorizontalAlign Alignment
+	ImageScale      ImageScale
+	Image           string // ???
 	// Internal state.
 }
 

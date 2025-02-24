@@ -82,6 +82,16 @@ type TextSetter interface {
 	SetText(string)
 }
 
+// ImageScaleSetter is used to set the image scale style of the given element.
+type ImageScaleSetter interface {
+	SetImageScale(ImageScale)
+}
+
+// ImageSetter is used to set the image of the given element.
+type ImageSetter interface {
+	SetImage(*ebiten.Image)
+}
+
 // XSetter is used to set the x position of the given element.
 type XSetter interface {
 	SetX(float64)

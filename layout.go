@@ -3,6 +3,7 @@ package rebui
 import (
 	"encoding/json"
 	"image/color"
+	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -20,6 +21,7 @@ type Layout struct {
 	Nodes         []*Node
 	currentState  currentState
 	//
+	imageLoader         func(string) (*ebiten.Image, error)
 	relayout            bool
 	pressedMouseButtons []ebiten.MouseButton
 	lastMouseX          int
@@ -268,7 +270,9 @@ func (l *Layout) Update() {
 func (l *Layout) Draw(screen *ebiten.Image) {
 	l.RenderTarget = screen
 	for _, n := range l.Nodes {
-		n.Element.Draw(screen)
+		if n.Element != nil {
+			n.Element.Draw(screen)
+		}
 	}
 }
 
@@ -299,8 +303,26 @@ func (l *Layout) generateNode(n *Node) {
 			if ts, ok := n.Element.(TextSetter); ok {
 				ts.SetText(n.Text)
 			}
+			if is, ok := n.Element.(ImageScaleSetter); ok {
+				is.SetImageScale(n.ImageScale)
+			}
+			if is, ok := n.Element.(ImageSetter); ok {
+				if l.imageLoader != nil {
+					img, err := l.imageLoader(n.Image)
+					if err == nil {
+						is.SetImage(img)
+					} else {
+						log.Println(err)
+					}
+				}
+			}
 		}
 	}
+}
+
+// SetImageLoader can be used to set a loader that controls loading images by string.
+func (l *Layout) SetImageLoader(cb func(string) (*ebiten.Image, error)) {
+	l.imageLoader = cb
 }
 
 // layoutNode sets the node's various positions and sizings based upon the containing outer width and height.

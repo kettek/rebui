@@ -1,0 +1,50 @@
+[
+  {
+	  "Type": "Image",
+    "ID": "image1",
+    "X": "50%",
+    "Y": "50%",
+    "OriginX": "-50%",
+    "OriginY": "-50%",
+	  "Width": "25%",
+	  "Height": "25%",
+	  "VerticalAlign": "bottom",
+	  "HorizontalAlign": "center",
+    "Image": "image.png"
+  },
+  {
+    "Type": "Image",
+    "ID": "image2",
+    "X": "at image1",
+    "Y": "at image1",
+    "OriginX": "-100%",
+    "Width": "100% of image1",
+    "Height": "100% of image1",
+    "VerticalAlign": "middle",
+    "HorizontalAlign": "center",
+    "ImageScale": "cover",
+    "Image": "image.png"
+  },
+  {
+    "Type": "Image",
+    "X": "after image1",
+    "Y": "at image1",
+    "Width": "100% of image1",
+    "Height": "100% of image1",
+    "VerticalAlign": "middle",
+    "HorizontalAlign": "center",
+    "ImageScale": "fill",
+    "Image": "image.png"
+  },
+  {
+    "Type": "Image",
+    "X": "at image1",
+    "Y": "after image1",
+    "Width": "100% of image1",
+    "Height": "100% of image1",
+    "VerticalAlign": "middle",
+    "HorizontalAlign": "center",
+    "ImageScale": "nearest",
+    "Image": "image.png"
+  }
+]

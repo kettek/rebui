@@ -48,7 +48,7 @@ func (b *Button) Draw(screen *ebiten.Image) {
 	y := b.Y
 
 	vector.DrawFilledRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), b.backgroundColor, true)
-	vector.StrokeRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), 1, b.borderColor, true)
+	vector.StrokeRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), 1, b.borderColor, false)
 
 	if b.text != "" {
 		txtOptions := &text.DrawOptions{}

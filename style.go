@@ -12,3 +12,18 @@ const (
 	Middle Alignment = "middle"
 	Bottom Alignment = "bottom"
 )
+
+// ImageScale is used to determine how images scale within their element.
+type ImageScale string
+
+// Our various scaling.
+const (
+	// None doesn't apply any scaling.
+	None ImageScale = "none"
+	// Fill will stretch the image to fit the element.
+	Fill ImageScale = "fill"
+	// Cover will fit the image within the element, maintaining aspect ratio.
+	Cover ImageScale = "cover"
+	// Even works like Cover, but to nearest whole multiple.
+	Nearest ImageScale = "nearest"
+)
