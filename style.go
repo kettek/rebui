@@ -24,6 +24,6 @@ const (
 	Fill ImageScale = "fill"
 	// Cover will fit the image within the element, maintaining aspect ratio.
 	Cover ImageScale = "cover"
-	// Even works like Cover, but to nearest whole multiple.
+	// Nearest works like Cover, but to nearest whole multiple.
 	Nearest ImageScale = "nearest"
 )
