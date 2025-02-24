@@ -8,6 +8,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kettek/rebui"
 	"github.com/kettek/rebui/widgets"
+
+	// This import sets the default ui font
+	_ "github.com/kettek/rebui/defaults/font"
 )
 
 type Game struct {

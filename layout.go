@@ -309,6 +309,9 @@ func (l *Layout) generateNode(n *Node) {
 			if ts, ok := n.Element.(TextSetter); ok {
 				ts.SetText(n.Text)
 			}
+			if fs, ok := n.Element.(FontFaceSetter); ok {
+				fs.SetFontFace(CurrentTheme().FontFace)
+			}
 			if is, ok := n.Element.(ImageScaleSetter); ok {
 				is.SetImageScale(n.ImageScale)
 			}

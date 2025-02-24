@@ -4,6 +4,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // BasicElement provides the core functionality for positioning and testing for hits.
@@ -80,6 +81,11 @@ type HorizontalAlignmentSetter interface {
 // TextSetter is used to set the text of the given element.
 type TextSetter interface {
 	SetText(string)
+}
+
+// FontFaceSetter is used to set the font face that the given element should use. This is generally derived from Theme, but may be overridden.
+type FontFaceSetter interface {
+	SetFontFace(text.Face)
 }
 
 // ImageScaleSetter is used to set the image scale style of the given element.

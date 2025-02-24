@@ -9,7 +9,8 @@
 	  "Width": "25%",
 	  "Height": "25%",
 	  "VerticalAlign": "middle",
-	  "HorizontalAlign": "center"
+	  "HorizontalAlign": "center",
+    "Text": "Hello World"
   },
   {
     "Type": "MyButton",
@@ -19,6 +20,7 @@
     "Width": "50% of my_button",
     "Height": "50%",
     "VerticalAlign": "middle",
-    "HorizontalAlign": "center"
+    "HorizontalAlign": "center",
+    "Text": "Hello World"
   }
 ]
