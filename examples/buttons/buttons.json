@@ -1,0 +1,24 @@
+[
+  {
+	  "Type": "MyButton",
+	  "ID": "my_button",
+    "X": "50%",
+    "Y": "50%",
+    "OriginX": "-50%",
+    "OriginY": "-50%",
+	  "Width": "25%",
+	  "Height": "25%",
+	  "VerticalAlign": "middle",
+	  "HorizontalAlign": "center"
+  },
+  {
+    "Type": "MyButton",
+    "ID": "my_button2",
+    "X": "after my_button",
+    "Y": "at my_button",
+    "Width": "50% of my_button",
+    "Height": "50%",
+    "VerticalAlign": "middle",
+    "HorizontalAlign": "center"
+  }
+]
