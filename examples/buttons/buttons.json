@@ -23,6 +23,6 @@
     "VerticalAlign": "middle",
     "HorizontalAlign": "center",
     "Text": "Hello World",
-    "FontSize": 24
+    "FontSize": "24"
   }
 ]
