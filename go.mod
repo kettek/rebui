@@ -2,7 +2,10 @@ module github.com/kettek/rebui
 
 go 1.24.0
 
-require github.com/hajimehoshi/ebiten/v2 v2.8.6
+require (
+	github.com/hajimehoshi/ebiten/v2 v2.8.6
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325 // indirect

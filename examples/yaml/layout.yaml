@@ -1,0 +1,18 @@
+- type: Text
+  id: header
+  x: 50%
+  y: 40%
+  width: 50%
+  height: 25%
+  originx: -50%
+  originy: -50%
+  verticalalign: middle
+  horizontalalign: center
+  text: Hello YAML
+  fontsize: 200%
+- type: Text
+  x: 50%
+  y: after header
+  verticalalign: middle
+  horizontalalign: center
+  text: This is a YAML file :)
