@@ -1,15 +1,15 @@
 [
   {
-	  "Type": "MyButton",
-	  "ID": "my_button",
+    "Type": "MyButton",
+    "ID": "my_button",
     "X": "50%",
     "Y": "50%",
     "OriginX": "-50%",
     "OriginY": "-50%",
-	  "Width": "25%",
-	  "Height": "25%",
-	  "VerticalAlign": "middle",
-	  "HorizontalAlign": "center",
+    "Width": "25%",
+    "Height": "25%",
+    "VerticalAlign": "middle",
+    "HorizontalAlign": "center",
     "Text": "Hello World"
   },
   {
