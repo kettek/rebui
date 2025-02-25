@@ -37,6 +37,15 @@ func (w *Text) SetFontFace(face text.Face) {
 	w.face = face
 }
 
+func (w *Text) SetFontSize(size float64) {
+	// Re-use FontFace.
+	if textFace, ok := w.face.(*text.GoTextFace); ok {
+		txt := *textFace
+		txt.Size = size
+		w.face = &txt
+	}
+}
+
 func (w *Text) Draw(screen *ebiten.Image) {
 	if w.text != "" && w.face != nil {
 		txtOptions := &text.DrawOptions{}

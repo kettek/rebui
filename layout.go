@@ -312,6 +312,11 @@ func (l *Layout) generateNode(n *Node) {
 			if fs, ok := n.Element.(FontFaceSetter); ok {
 				fs.SetFontFace(CurrentTheme().FontFace)
 			}
+			if n.FontSize != 0 {
+				if fs, ok := n.Element.(FontSizeSetter); ok {
+					fs.SetFontSize(n.FontSize)
+				}
+			}
 			if is, ok := n.Element.(ImageScaleSetter); ok {
 				is.SetImageScale(n.ImageScale)
 			}

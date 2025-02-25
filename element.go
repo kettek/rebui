@@ -88,6 +88,11 @@ type FontFaceSetter interface {
 	SetFontFace(text.Face)
 }
 
+// FontSizeSetter is used to set the font size of the given element.
+type FontSizeSetter interface {
+	SetFontSize(float64)
+}
+
 // ImageScaleSetter is used to set the image scale style of the given element.
 type ImageScaleSetter interface {
 	SetImageScale(ImageScale)

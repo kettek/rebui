@@ -15,12 +15,14 @@
   {
     "Type": "MyButton",
     "ID": "my_button2",
-    "X": "after my_button",
-    "Y": "at my_button",
-    "Width": "50% of my_button",
-    "Height": "50%",
+    "X": "50%",
+    "Y": "after my_button",
+    "OriginX": "-50%",
+    "Width": "150",
+    "Height": "50",
     "VerticalAlign": "middle",
     "HorizontalAlign": "center",
-    "Text": "Hello World"
+    "Text": "Hello World",
+    "FontSize": 24
   }
 ]
