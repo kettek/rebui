@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -41,10 +40,6 @@ func main() {
 		log.Fatalf("error: %v", err)
 	}
 
-	fmt.Println("we got", g.layout.Nodes)
-	for i, node := range g.layout.Nodes {
-		fmt.Println("Node", i, "is", node)
-	}
 	g.layout.Generate()
 
 	ebiten.SetWindowSize(320, 240)
