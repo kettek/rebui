@@ -15,7 +15,7 @@ type Node struct {
 	OriginX         string
 	OriginY         string
 	Text            string
-	FontSize        float64
+	FontSize        string
 	Element         Element `json:"-"`
 	BackgroundColor string
 	ForegroundColor string

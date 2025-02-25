@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Layout is used to control layout and manage events.
@@ -312,9 +313,12 @@ func (l *Layout) generateNode(n *Node) {
 			if fs, ok := n.Element.(FontFaceSetter); ok {
 				fs.SetFontFace(CurrentTheme().FontFace)
 			}
-			if n.FontSize != 0 {
+			if n.FontSize != "" {
 				if fs, ok := n.Element.(FontSizeSetter); ok {
-					fs.SetFontSize(n.FontSize)
+					if ff, ok := CurrentTheme().FontFace.(*text.GoTextFace); ok {
+						size := stringToPosition(l, n.FontSize, ff.Size, true) // FIXME: This re-use is goofy, as it allows unintended at/after usage.
+						fs.SetFontSize(size)
+					}
 				}
 			}
 			if is, ok := n.Element.(ImageScaleSetter); ok {
