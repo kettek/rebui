@@ -253,6 +253,10 @@ func (l *Layout) Update() {
 				// Clear out any held releases.
 				for _, n := range l.Nodes {
 					if l.currentState.isPressed(n, event.PointerID) {
+						event.Target = n.Element
+						if n.OnPointerGlobalRelease != nil {
+							n.OnPointerGlobalRelease(event)
+						}
 						if hrelease, ok := n.Element.(GlobalReleaseReceiver); ok {
 							hrelease.HandlePointerGlobalRelease(event)
 						}
@@ -262,7 +266,11 @@ func (l *Layout) Update() {
 			case *pointerMoveEvent:
 				// Handle any global move handlers that were pressed.
 				for _, n := range l.Nodes {
+					event.Target = n.Element
 					if l.currentState.isPressed(n, event.PointerID) {
+						if n.OnPointerGlobalMove != nil {
+							n.OnPointerGlobalMove(event)
+						}
 						if hmove, ok := n.Element.(GlobalMoveReceiver); ok {
 							hmove.HandlePointerGlobalMove(event)
 						}
@@ -393,24 +401,44 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 		switch event := e.(type) {
 		case PointerMoveEvent:
 			if hit.Hit(event.X, event.Y) {
+				event.Target = n.Element
+				if n.OnPointerMove != nil {
+					n.OnPointerMove(event)
+				}
 				if hmove, ok := n.Element.(PointerMoveReceiver); ok {
 					hmove.HandlePointerMove(event)
 				}
 				if !l.currentState.isHovered(n) {
+					if n.OnPointerIn != nil {
+						n.OnPointerIn(&pointerInEvent{
+							TargetElementEvent: TargetElementEvent{n.Element},
+							TimestampEvent:     event.TimestampEvent,
+							PointerEvent:       event.PointerEvent,
+						})
+					}
 					if hin, ok := n.Element.(PointerInReceiver); ok {
 						hin.HandlePointerIn(&pointerInEvent{
-							TimestampEvent: event.TimestampEvent,
-							PointerEvent:   event.PointerEvent,
+							TargetElementEvent: TargetElementEvent{n.Element},
+							TimestampEvent:     event.TimestampEvent,
+							PointerEvent:       event.PointerEvent,
 						})
 					}
 					l.currentState.addHovered(n)
 				}
 			} else {
 				if l.currentState.isHovered(n) {
+					if n.OnPointerOut != nil {
+						n.OnPointerOut(&pointerOutEvent{
+							TargetElementEvent: TargetElementEvent{n.Element},
+							TimestampEvent:     event.TimestampEvent,
+							PointerEvent:       event.PointerEvent,
+						})
+					}
 					if hout, ok := n.Element.(PointerOutReceiver); ok {
 						hout.HandlePointerOut(&pointerOutEvent{
-							TimestampEvent: event.TimestampEvent,
-							PointerEvent:   event.PointerEvent,
+							TargetElementEvent: TargetElementEvent{n.Element},
+							TimestampEvent:     event.TimestampEvent,
+							PointerEvent:       event.PointerEvent,
 						})
 					}
 					l.currentState.removeHovered(n)
@@ -418,6 +446,10 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		case PointerPressEvent:
 			if hit.Hit(event.X, event.Y) {
+				event.Target = n.Element
+				if n.OnPointerPress != nil {
+					n.OnPointerPress(event)
+				}
 				if hpress, ok := n.Element.(PressReceiver); ok {
 					hpress.HandlePointerPress(event)
 				}
@@ -427,15 +459,27 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		case PointerReleaseEvent:
 			if hit.Hit(event.X, event.Y) {
+				event.Target = n.Element
+				if n.OnPointerRelease != nil {
+					n.OnPointerRelease(event)
+				}
 				if hrelease, ok := n.Element.(ReleaseReceiver); ok {
 					hrelease.HandlePointerRelease(event)
 				}
 				if l.currentState.isPressed(n, event.PointerID) {
 					l.currentState.removePressed(n, event.PointerID)
+					if n.OnPointerPressed != nil {
+						n.OnPointerPressed(&pointerPressedEvent{
+							TargetElementEvent: TargetElementEvent{n.Element},
+							TimestampEvent:     event.TimestampEvent,
+							PointerEvent:       event.PointerEvent,
+						})
+					}
 					if hpress, ok := n.Element.(PressedReceiver); ok {
 						hpress.HandlePointerPressed(&pointerPressedEvent{
-							TimestampEvent: event.TimestampEvent,
-							PointerEvent:   event.PointerEvent,
+							TargetElementEvent: TargetElementEvent{n.Element},
+							TimestampEvent:     event.TimestampEvent,
+							PointerEvent:       event.PointerEvent,
 						})
 					}
 				}

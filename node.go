@@ -24,7 +24,18 @@ type Node struct {
 	HorizontalAlign Alignment
 	ImageScale      ImageScale
 	Image           string // ???
-	// Internal state.
+	nodeHooks
+}
+
+type nodeHooks struct {
+	OnPointerIn            func(PointerInEvent)
+	OnPointerOut           func(PointerOutEvent)
+	OnPointerMove          func(PointerMoveEvent)
+	OnPointerPress         func(PointerPressEvent)
+	OnPointerRelease       func(PointerReleaseEvent)
+	OnPointerPressed       func(PointerPressedEvent)
+	OnPointerGlobalRelease func(PointerReleaseEvent)
+	OnPointerGlobalMove    func(PointerMoveEvent)
 }
 
 // pressedNode is a convenience struct that corresponds a given node with a pointer ID.

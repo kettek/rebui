@@ -13,6 +13,10 @@ type TimestampEvent struct {
 	Timestamp time.Time
 }
 
+type TargetElementEvent struct {
+	Target Element
+}
+
 // PointerEvent is an event that has pointer information.
 type PointerEvent struct {
 	X, Y      float64
@@ -36,6 +40,7 @@ func (c *CancelableEvent) Canceled() bool {
 }
 
 type pointerMoveEvent struct {
+	TargetElementEvent
 	TimestampEvent
 	CancelableEvent
 	PointerEvent
@@ -45,6 +50,7 @@ type pointerMoveEvent struct {
 type PointerMoveEvent = *pointerMoveEvent
 
 type pointerInEvent struct {
+	TargetElementEvent
 	TimestampEvent
 	CancelableEvent
 	PointerEvent
@@ -54,6 +60,7 @@ type pointerInEvent struct {
 type PointerInEvent = *pointerInEvent
 
 type pointerOutEvent struct {
+	TargetElementEvent
 	TimestampEvent
 	CancelableEvent
 	PointerEvent
@@ -63,6 +70,7 @@ type pointerOutEvent struct {
 type PointerOutEvent = *pointerOutEvent
 
 type pointerPressEvent struct {
+	TargetElementEvent
 	TimestampEvent
 	CancelableEvent
 	PointerEvent
@@ -72,6 +80,7 @@ type pointerPressEvent struct {
 type PointerPressEvent = *pointerPressEvent
 
 type pointerReleaseEvent struct {
+	TargetElementEvent
 	TimestampEvent
 	CancelableEvent
 	PointerEvent
@@ -81,6 +90,7 @@ type pointerReleaseEvent struct {
 type PointerReleaseEvent = *pointerReleaseEvent
 
 type pointerPressedEvent struct {
+	TargetElementEvent
 	TimestampEvent
 	CancelableEvent
 	PointerEvent
