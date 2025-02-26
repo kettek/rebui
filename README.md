@@ -14,7 +14,7 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kettek/rebui"
-  // Blank import ensures all the default widgets are available.
+	// Blank import ensures all the default widgets are available.
 	_ "github.com/kettek/rebui/widgets"
 )
 
@@ -114,12 +114,12 @@ type DraggableButton struct {
 }
 
 func (b *DraggableButton) HandlePointerGlobalMove(e rebui.EventPointerMove) {
-  // left mouse button to drag
+	// left mouse button to drag
 	if e.PointerID == 0 {
 		b.X += e.DX
 		b.Y += e.DY
 	}
-  // right mouse button to resize
+	// right mouse button to resize
 	if e.PointerID == 2 {
 		b.Width += e.DX
 		b.Height += e.DY
