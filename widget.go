@@ -9,7 +9,7 @@ import (
 
 // Widget is the interface that all widgets must implement.
 type Widget interface {
-	Draw(*ebiten.Image)
+	Draw(*ebiten.Image, *ebiten.DrawImageOptions)
 }
 
 // SetterBackgroundColor is an alias.

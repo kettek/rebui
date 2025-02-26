@@ -4,7 +4,7 @@ import "github.com/hajimehoshi/ebiten/v2"
 
 // Widget is the interface that all widgets must implement.
 type Widget interface {
-	Draw(*ebiten.Image)
+	Draw(*ebiten.Image, *ebiten.DrawImageOptions)
 }
 
 // TargetWidget is an event that has a target element.

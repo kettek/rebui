@@ -304,8 +304,19 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 	}
 
 	for _, n := range l.Nodes {
+		op := &ebiten.DrawImageOptions{}
 		if n.Widget != nil {
-			n.Widget.Draw(screen)
+			if xg, ok := n.Widget.(getters.X); ok {
+				op.GeoM.Translate(xg.GetX(), 0)
+			} else {
+				op.GeoM.Translate(n.x, 0)
+			}
+			if yg, ok := n.Widget.(getters.Y); ok {
+				op.GeoM.Translate(0, yg.GetY())
+			} else {
+				op.GeoM.Translate(0, n.y)
+			}
+			n.Widget.Draw(screen, op)
 		}
 	}
 }

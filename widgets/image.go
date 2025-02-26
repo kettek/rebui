@@ -38,7 +38,7 @@ func (w *Image) SetBorderColor(clr color.Color) {
 	w.borderColor = clr
 }
 
-func (w *Image) Draw(screen *ebiten.Image) {
+func (w *Image) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	if w.image != nil {
 		op := &ebiten.DrawImageOptions{}
 
@@ -70,31 +70,31 @@ func (w *Image) Draw(screen *ebiten.Image) {
 			ih *= scale
 		}
 
+		op.GeoM.Concat(sop.GeoM)
+
 		if w.halign == rebui.AlignCenter {
-			op.GeoM.Translate(w.X+w.Width/2, 0)
+			op.GeoM.Translate(w.Width/2, 0)
 			op.GeoM.Translate(-float64(iw)/2, 0)
 		} else if w.halign == rebui.AlignRight {
-			op.GeoM.Translate(w.X+w.Width, 0)
+			op.GeoM.Translate(w.Width, 0)
 			op.GeoM.Translate(-float64(iw), 0)
-		} else {
-			op.GeoM.Translate(w.X, 0)
 		}
 
 		if w.valign == rebui.AlignMiddle {
-			op.GeoM.Translate(0, w.Y+w.Height/2)
+			op.GeoM.Translate(0, w.Height/2)
 			op.GeoM.Translate(0, -float64(ih)/2)
 		} else if w.valign == rebui.AlignBottom {
-			op.GeoM.Translate(0, w.Y+w.Height)
+			op.GeoM.Translate(0, w.Height)
 			op.GeoM.Translate(0, -float64(ih))
-		} else {
-			op.GeoM.Translate(0, w.Y)
 		}
 
 		screen.DrawImage(w.image, op)
 	}
 
 	if w.borderColor != nil {
-		vector.StrokeRect(screen, float32(w.X), float32(w.Y), float32(w.Width), float32(w.Height), 1, w.borderColor, false)
+		x := sop.GeoM.Element(0, 2)
+		y := sop.GeoM.Element(1, 2)
+		vector.StrokeRect(screen, float32(x), float32(y), float32(w.Width), float32(w.Height), 1, w.borderColor, false)
 	}
 }
 

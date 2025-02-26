@@ -46,10 +46,10 @@ func (w *Label) SetFontSize(size float64) {
 	}
 }
 
-func (w *Label) Draw(screen *ebiten.Image) {
+func (w *Label) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	if w.text != "" && w.face != nil {
 		txtOptions := &text.DrawOptions{}
-		txtOptions.GeoM.Translate(w.X, w.Y)
+		txtOptions.GeoM.Concat(sop.GeoM)
 
 		switch w.halign {
 		case rebui.AlignCenter:

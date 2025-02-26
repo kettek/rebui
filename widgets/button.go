@@ -22,14 +22,14 @@ func (b *Button) SetBorderColor(clr color.Color) {
 	b.borderColor = clr
 }
 
-func (b *Button) Draw(screen *ebiten.Image) {
-	x := b.X
-	y := b.Y
+func (b *Button) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
+	x := sop.GeoM.Element(0, 2)
+	y := sop.GeoM.Element(1, 2)
 
 	vector.DrawFilledRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), b.backgroundColor, true)
 	vector.StrokeRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), 1, b.borderColor, false)
 
-	b.Label.Draw(screen)
+	b.Label.Draw(screen, sop)
 }
 
 func init() {
