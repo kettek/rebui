@@ -1,0 +1,14 @@
+[
+  {
+    "Type": "Icon",
+    "X": "50%",
+    "Y": "50%",
+    "OriginX": "-50%",
+    "OriginY": "-50%",
+    "Width": "32",
+    "Height": "32",
+    "VerticalAlign": "center",
+    "HorizontalAlign": "center",
+    "Image": "icon.png"
+  }
+]
