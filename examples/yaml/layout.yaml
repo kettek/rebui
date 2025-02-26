@@ -1,4 +1,4 @@
-- type: Text
+- type: Label
   id: header
   x: 50%
   y: 40%
@@ -10,7 +10,7 @@
   horizontalalign: center
   text: Hello YAML
   fontsize: 200%
-- type: Text
+- type: Label
   x: 50%
   y: after header
   verticalalign: middle

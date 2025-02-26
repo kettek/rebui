@@ -8,7 +8,7 @@ import (
 	"github.com/kettek/rebui"
 )
 
-type Text struct {
+type Label struct {
 	Basic
 	text            string
 	face            text.Face
@@ -17,27 +17,27 @@ type Text struct {
 	halign          rebui.Alignment
 }
 
-func (w *Text) SetText(text string) {
+func (w *Label) SetText(text string) {
 	w.text = text
 }
 
-func (w *Text) SetForegroundColor(clr color.Color) {
+func (w *Label) SetForegroundColor(clr color.Color) {
 	w.foregroundColor = clr
 }
 
-func (w *Text) SetVerticalAlignment(align rebui.Alignment) {
+func (w *Label) SetVerticalAlignment(align rebui.Alignment) {
 	w.valign = align
 }
 
-func (w *Text) SetHorizontalAlignment(align rebui.Alignment) {
+func (w *Label) SetHorizontalAlignment(align rebui.Alignment) {
 	w.halign = align
 }
 
-func (w *Text) SetFontFace(face text.Face) {
+func (w *Label) SetFontFace(face text.Face) {
 	w.face = face
 }
 
-func (w *Text) SetFontSize(size float64) {
+func (w *Label) SetFontSize(size float64) {
 	// Re-use FontFace.
 	if textFace, ok := w.face.(*text.GoTextFace); ok {
 		txt := *textFace
@@ -46,7 +46,7 @@ func (w *Text) SetFontSize(size float64) {
 	}
 }
 
-func (w *Text) Draw(screen *ebiten.Image) {
+func (w *Label) Draw(screen *ebiten.Image) {
 	if w.text != "" && w.face != nil {
 		txtOptions := &text.DrawOptions{}
 		txtOptions.GeoM.Translate(w.X, w.Y)
@@ -76,5 +76,5 @@ func (w *Text) Draw(screen *ebiten.Image) {
 }
 
 func init() {
-	rebui.RegisterElement("Text", &Text{})
+	rebui.RegisterElement("Label", &Label{})
 }

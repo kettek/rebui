@@ -9,7 +9,7 @@ import (
 )
 
 type Button struct {
-	Text
+	Label
 	backgroundColor color.Color
 	borderColor     color.Color
 }
@@ -29,7 +29,7 @@ func (b *Button) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), b.backgroundColor, true)
 	vector.StrokeRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), 1, b.borderColor, false)
 
-	b.Text.Draw(screen)
+	b.Label.Draw(screen)
 }
 
 func init() {
