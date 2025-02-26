@@ -18,34 +18,34 @@ type Image struct {
 	borderColor color.Color
 }
 
-func (el *Image) SetImage(image *ebiten.Image) {
-	el.image = image
+func (w *Image) SetImage(image *ebiten.Image) {
+	w.image = image
 }
 
-func (el *Image) SetImageScale(scale rebui.ImageScale) {
-	el.scale = scale
+func (w *Image) SetImageScale(scale rebui.ImageScale) {
+	w.scale = scale
 }
 
-func (el *Image) SetVerticalAlignment(align rebui.Alignment) {
-	el.valign = align
+func (w *Image) SetVerticalAlignment(align rebui.Alignment) {
+	w.valign = align
 }
 
-func (el *Image) SetHorizontalAlignment(align rebui.Alignment) {
-	el.halign = align
+func (w *Image) SetHorizontalAlignment(align rebui.Alignment) {
+	w.halign = align
 }
 
-func (el *Image) SetBorderColor(clr color.Color) {
-	el.borderColor = clr
+func (w *Image) SetBorderColor(clr color.Color) {
+	w.borderColor = clr
 }
 
-func (el *Image) Draw(screen *ebiten.Image) {
-	if el.image != nil {
+func (w *Image) Draw(screen *ebiten.Image) {
+	if w.image != nil {
 		op := &ebiten.DrawImageOptions{}
 
-		iw, ih := float64(el.image.Bounds().Dx()), float64(el.image.Bounds().Dy())
-		sw, sh := float64(el.Width), float64(el.Height)
+		iw, ih := float64(w.image.Bounds().Dx()), float64(w.image.Bounds().Dy())
+		sw, sh := float64(w.Width), float64(w.Height)
 
-		switch el.scale {
+		switch w.scale {
 		case rebui.ImageScaleFill:
 			op.GeoM.Scale(sw/iw, sh/ih)
 			iw *= sw / iw
@@ -70,34 +70,34 @@ func (el *Image) Draw(screen *ebiten.Image) {
 			ih *= scale
 		}
 
-		if el.halign == rebui.AlignCenter {
-			op.GeoM.Translate(el.X+el.Width/2, 0)
+		if w.halign == rebui.AlignCenter {
+			op.GeoM.Translate(w.X+w.Width/2, 0)
 			op.GeoM.Translate(-float64(iw)/2, 0)
-		} else if el.halign == rebui.AlignRight {
-			op.GeoM.Translate(el.X+el.Width, 0)
+		} else if w.halign == rebui.AlignRight {
+			op.GeoM.Translate(w.X+w.Width, 0)
 			op.GeoM.Translate(-float64(iw), 0)
 		} else {
-			op.GeoM.Translate(el.X, 0)
+			op.GeoM.Translate(w.X, 0)
 		}
 
-		if el.valign == rebui.AlignMiddle {
-			op.GeoM.Translate(0, el.Y+el.Height/2)
+		if w.valign == rebui.AlignMiddle {
+			op.GeoM.Translate(0, w.Y+w.Height/2)
 			op.GeoM.Translate(0, -float64(ih)/2)
-		} else if el.valign == rebui.AlignBottom {
-			op.GeoM.Translate(0, el.Y+el.Height)
+		} else if w.valign == rebui.AlignBottom {
+			op.GeoM.Translate(0, w.Y+w.Height)
 			op.GeoM.Translate(0, -float64(ih))
 		} else {
-			op.GeoM.Translate(0, el.Y)
+			op.GeoM.Translate(0, w.Y)
 		}
 
-		screen.DrawImage(el.image, op)
+		screen.DrawImage(w.image, op)
 	}
 
-	if el.borderColor != nil {
-		vector.StrokeRect(screen, float32(el.X), float32(el.Y), float32(el.Width), float32(el.Height), 1, el.borderColor, false)
+	if w.borderColor != nil {
+		vector.StrokeRect(screen, float32(w.X), float32(w.Y), float32(w.Width), float32(w.Height), 1, w.borderColor, false)
 	}
 }
 
 func init() {
-	rebui.RegisterElement("Image", &Image{})
+	rebui.RegisterWidget("Image", &Image{})
 }

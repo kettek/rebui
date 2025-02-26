@@ -33,5 +33,5 @@ func (b *Button) Draw(screen *ebiten.Image) {
 }
 
 func init() {
-	rebui.RegisterElement("Button", &Button{})
+	rebui.RegisterWidget("Button", &Button{})
 }

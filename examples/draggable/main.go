@@ -95,5 +95,5 @@ func (b *DraggableButton) HandlePointerGlobalMove(e rebui.EventPointerMove) {
 }
 
 func init() {
-	rebui.RegisterElement("DraggableButton", &DraggableButton{})
+	rebui.RegisterWidget("DraggableButton", &DraggableButton{})
 }

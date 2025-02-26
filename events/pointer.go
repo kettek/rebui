@@ -27,7 +27,7 @@ func (c *Cancelable) Canceled() bool {
 // PointerMove is an event that is triggered when a pointer moves with an element or if an element was pressed and the pointer moves outside of its hit box.
 type PointerMove struct {
 	Cancelable
-	TargetElement
+	TargetWidget
 	Timestamp
 	Pointer
 }
@@ -35,7 +35,7 @@ type PointerMove struct {
 // PointerIn is an event that is triggered when a pointer enters an element.
 type PointerIn struct {
 	Cancelable
-	TargetElement
+	TargetWidget
 	Timestamp
 	Pointer
 }
@@ -43,7 +43,7 @@ type PointerIn struct {
 // PointerOut is an event that is triggered when a pointer leaves an element.
 type PointerOut struct {
 	Cancelable
-	TargetElement
+	TargetWidget
 	Timestamp
 	Pointer
 }
@@ -51,7 +51,7 @@ type PointerOut struct {
 // PointerPress is an event that is triggered when a pointer has depressed an element.
 type PointerPress struct {
 	Cancelable
-	TargetElement
+	TargetWidget
 	Timestamp
 	Pointer
 }
@@ -59,7 +59,7 @@ type PointerPress struct {
 // PointerRelease is an event that is triggered when a pointer has released an element.
 type PointerRelease struct {
 	Cancelable
-	TargetElement
+	TargetWidget
 	Timestamp
 	Pointer
 }
@@ -67,7 +67,7 @@ type PointerRelease struct {
 // PointerPressed is an event that is triggered when an elemenbt has received both a press and a release event.
 type PointerPressed struct {
 	Cancelable
-	TargetElement
+	TargetWidget
 	Timestamp
 	Pointer
 }

@@ -69,5 +69,5 @@ func (b *MyButton) HandlePointerRelease(e rebui.EventPointerRelease) {
 }
 
 func init() {
-	rebui.RegisterElement("MyButton", &MyButton{})
+	rebui.RegisterWidget("MyButton", &MyButton{})
 }

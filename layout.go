@@ -12,11 +12,11 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kettek/rebui/elements/getters"
-	"github.com/kettek/rebui/elements/receivers"
-	"github.com/kettek/rebui/elements/setters"
 	"github.com/kettek/rebui/events"
 	"github.com/kettek/rebui/style"
+	"github.com/kettek/rebui/widgets/getters"
+	"github.com/kettek/rebui/widgets/receivers"
+	"github.com/kettek/rebui/widgets/setters"
 )
 
 // Layout is used to control layout and manage evts.
@@ -46,10 +46,10 @@ func (l *Layout) GetByID(id string) *Node {
 	return nil
 }
 
-var handlers = make(map[string]Element)
+var handlers = make(map[string]Widget)
 
-// RegisterElement is used to register an Element for parsing into the passed in type.
-func RegisterElement(name string, el Element) {
+// RegisterWidget is used to register an Widget for parsing into the passed in type.
+func RegisterWidget(name string, el Widget) {
 	handlers[name] = el
 }
 
@@ -70,7 +70,7 @@ func (l *Layout) Parse(src string) error {
 	return reader.Decode(&l.Nodes)
 }
 
-// Generate creates proper Elements from the list of Nodes.
+// Generate creates proper Widgets from the list of Nodes.
 func (l *Layout) Generate() {
 	for _, n := range l.Nodes {
 		l.generateNode(n)
@@ -231,7 +231,7 @@ func (l *Layout) getEvents() (evts []Event) {
 	return
 }
 
-// Update collects evts and propagates them to the contained Elements.
+// Update collects evts and propagates them to the contained Widgets.
 func (l *Layout) Update() {
 	if l.relayout {
 		w, h := l.getSize()
@@ -254,17 +254,17 @@ func (l *Layout) Update() {
 				// Clear out any held releases.
 				for _, n := range l.Nodes {
 					if l.currentState.isPressed(n, evt.PointerID) {
-						evt.Target = n.Element
-						if gx, ok := n.Element.(getters.X); ok {
+						evt.Target = n.Widget
+						if gx, ok := n.Widget.(getters.X); ok {
 							evt.RelativeX = evt.X - gx.GetX()
 						}
-						if gy, ok := n.Element.(getters.Y); ok {
+						if gy, ok := n.Widget.(getters.Y); ok {
 							evt.RelativeY = evt.Y - gy.GetY()
 						}
 						if n.OnPointerGlobalRelease != nil {
 							n.OnPointerGlobalRelease(&evt)
 						}
-						if hrelease, ok := n.Element.(receivers.PointerGlobalRelease); ok {
+						if hrelease, ok := n.Widget.(receivers.PointerGlobalRelease); ok {
 							hrelease.HandlePointerGlobalRelease(&evt)
 						}
 					}
@@ -273,18 +273,18 @@ func (l *Layout) Update() {
 			case events.PointerMove:
 				// Handle any global move handlers that were pressed.
 				for _, n := range l.Nodes {
-					evt.Target = n.Element
-					if gx, ok := n.Element.(getters.X); ok {
+					evt.Target = n.Widget
+					if gx, ok := n.Widget.(getters.X); ok {
 						evt.RelativeX = evt.X - gx.GetX()
 					}
-					if gy, ok := n.Element.(getters.Y); ok {
+					if gy, ok := n.Widget.(getters.Y); ok {
 						evt.RelativeY = evt.Y - gy.GetY()
 					}
 					if l.currentState.isPressed(n, evt.PointerID) {
 						if n.OnPointerGlobalMove != nil {
 							n.OnPointerGlobalMove(&evt)
 						}
-						if hmove, ok := n.Element.(receivers.PointerGlobalMove); ok {
+						if hmove, ok := n.Widget.(receivers.PointerGlobalMove); ok {
 							hmove.HandlePointerGlobalMove(&evt)
 						}
 					}
@@ -304,54 +304,54 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 	}
 
 	for _, n := range l.Nodes {
-		if n.Element != nil {
-			n.Element.Draw(screen)
+		if n.Widget != nil {
+			n.Widget.Draw(screen)
 		}
 	}
 }
 
 func (l *Layout) generateNode(n *Node) {
 	// Might as well prevent re-generation.
-	if n.Element != nil {
+	if n.Widget != nil {
 		return
 	}
 	for k, h := range handlers {
 		if k == n.Type {
-			n.Element = reflect.New(reflect.TypeOf(h).Elem()).Interface().(Element)
+			n.Widget = reflect.New(reflect.TypeOf(h).Elem()).Interface().(Widget)
 			// Call our setter interfaces if desired.
-			if bcs, ok := n.Element.(setters.BackgroundColor); ok {
+			if bcs, ok := n.Widget.(setters.BackgroundColor); ok {
 				bcs.SetBackgroundColor(stringToColor(n.BackgroundColor, style.CurrentTheme().BackgroundColor))
 			}
-			if fcs, ok := n.Element.(setters.ForegroundColor); ok {
+			if fcs, ok := n.Widget.(setters.ForegroundColor); ok {
 				fcs.SetForegroundColor(stringToColor(n.ForegroundColor, style.CurrentTheme().ForegroundColor))
 			}
-			if bcs, ok := n.Element.(setters.BorderColor); ok {
+			if bcs, ok := n.Widget.(setters.BorderColor); ok {
 				bcs.SetBorderColor(stringToColor(n.BorderColor, style.CurrentTheme().BorderColor))
 			}
-			if vas, ok := n.Element.(setters.VerticalAlignment); ok {
+			if vas, ok := n.Widget.(setters.VerticalAlignment); ok {
 				vas.SetVerticalAlignment(n.VerticalAlign)
 			}
-			if has, ok := n.Element.(setters.HorizontalAlignment); ok {
+			if has, ok := n.Widget.(setters.HorizontalAlignment); ok {
 				has.SetHorizontalAlignment(n.HorizontalAlign)
 			}
-			if ts, ok := n.Element.(setters.Text); ok {
+			if ts, ok := n.Widget.(setters.Text); ok {
 				ts.SetText(n.Text)
 			}
-			if fs, ok := n.Element.(setters.FontFace); ok {
+			if fs, ok := n.Widget.(setters.FontFace); ok {
 				fs.SetFontFace(style.CurrentTheme().FontFace)
 			}
 			if n.FontSize != "" {
-				if fs, ok := n.Element.(setters.FontSize); ok {
+				if fs, ok := n.Widget.(setters.FontSize); ok {
 					if ff, ok := style.CurrentTheme().FontFace.(*text.GoTextFace); ok {
 						size := stringToPosition(l, n.FontSize, ff.Size, true) // FIXME: This re-use is goofy, as it allows unintended at/after usage.
 						fs.SetFontSize(size)
 					}
 				}
 			}
-			if is, ok := n.Element.(setters.ImageScale); ok {
+			if is, ok := n.Widget.(setters.ImageScale); ok {
 				is.SetImageScale(n.ImageScale)
 			}
-			if is, ok := n.Element.(setters.Image); ok {
+			if is, ok := n.Widget.(setters.Image); ok {
 				if l.imageLoader != nil {
 					img, err := l.imageLoader(n.Image)
 					if err == nil {
@@ -379,12 +379,12 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 
 	var skipWidth bool
 	var skipHeight bool
-	if wg, ok := n.Element.(getters.Width); ok {
+	if wg, ok := n.Widget.(getters.Width); ok {
 		if wg.GetWidth() != n.width {
 			skipWidth = true
 		}
 	}
-	if hg, ok := n.Element.(getters.Height); ok {
+	if hg, ok := n.Widget.(getters.Height); ok {
 		if hg.GetHeight() != n.height {
 			skipHeight = true
 		}
@@ -393,7 +393,7 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	if !skipWidth {
 		if n.Width != "" {
 			nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
-			if ws, ok := n.Element.(setters.Width); ok {
+			if ws, ok := n.Widget.(setters.Width); ok {
 				ws.SetWidth(nodeWidth)
 			}
 			n.width = nodeWidth
@@ -402,7 +402,7 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	if !skipHeight {
 		if n.Height != "" {
 			nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
-			if hs, ok := n.Element.(setters.Height); ok {
+			if hs, ok := n.Widget.(setters.Height); ok {
 				hs.SetHeight(nodeHeight)
 			}
 			n.height = nodeHeight
@@ -412,12 +412,12 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	// Check if X has changed by comparing any user-set value to our stored node value.
 	var skipX bool
 	var skipY bool
-	if xg, ok := n.Element.(getters.X); ok {
+	if xg, ok := n.Widget.(getters.X); ok {
 		if xg.GetX() != n.x {
 			skipX = true
 		}
 	}
-	if yg, ok := n.Element.(getters.Y); ok {
+	if yg, ok := n.Widget.(getters.Y); ok {
 		if yg.GetY() != n.y {
 			skipY = true
 		}
@@ -426,12 +426,12 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	if !skipX {
 		// Origin uses the node's own width and height to determine offsets.
 		originX := stringToPosition(l, n.OriginX, nodeWidth, false)
-		if oxs, ok := n.Element.(setters.OriginX); ok {
+		if oxs, ok := n.Widget.(setters.OriginX); ok {
 			oxs.SetOriginX(originX)
 		}
 		if n.X != "" {
 			nodeX = stringToPosition(l, n.X, outerWidth, false)
-			if xs, ok := n.Element.(setters.X); ok {
+			if xs, ok := n.Widget.(setters.X); ok {
 				xs.SetX(nodeX + originX)
 			}
 			n.x = nodeX + originX
@@ -439,12 +439,12 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	}
 	if !skipY {
 		originY := stringToPosition(l, n.OriginY, nodeHeight, true)
-		if oys, ok := n.Element.(setters.OriginY); ok {
+		if oys, ok := n.Widget.(setters.OriginY); ok {
 			oys.SetOriginY(originY)
 		}
 		if n.Y != "" {
 			nodeY = stringToPosition(l, n.Y, outerHeight, true)
-			if ys, ok := n.Element.(setters.Y); ok {
+			if ys, ok := n.Widget.(setters.Y); ok {
 				ys.SetY(nodeY + originY)
 			}
 			n.y = nodeY + originY
@@ -453,33 +453,33 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 }
 
 func (l *Layout) processNodeEvent(n *Node, e Event) {
-	if hit, ok := n.Element.(HitChecker); ok {
+	if hit, ok := n.Widget.(HitChecker); ok {
 		switch evt := e.(type) {
 		case events.PointerMove:
 			if hit.Hit(evt.X, evt.Y) {
-				evt.Target = n.Element
-				if gx, ok := n.Element.(getters.X); ok {
+				evt.Target = n.Widget
+				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
 				}
-				if gy, ok := n.Element.(getters.Y); ok {
+				if gy, ok := n.Widget.(getters.Y); ok {
 					evt.RelativeY = evt.Y - gy.GetY()
 				}
 				if n.OnPointerMove != nil {
 					n.OnPointerMove(&evt)
 				}
-				if hmove, ok := n.Element.(receivers.PointerMove); ok {
+				if hmove, ok := n.Widget.(receivers.PointerMove); ok {
 					hmove.HandlePointerMove(&evt)
 				}
 				if !l.currentState.isHovered(n) {
 					pointerInEvent := events.PointerIn{
-						TargetElement: events.TargetElement{Target: n.Element},
-						Timestamp:     evt.Timestamp,
-						Pointer:       evt.Pointer,
+						TargetWidget: events.TargetWidget{Target: n.Widget},
+						Timestamp:    evt.Timestamp,
+						Pointer:      evt.Pointer,
 					}
 					if n.OnPointerIn != nil {
 						n.OnPointerIn(&pointerInEvent)
 					}
-					if hin, ok := n.Element.(receivers.PointerIn); ok {
+					if hin, ok := n.Widget.(receivers.PointerIn); ok {
 						hin.HandlePointerIn(&pointerInEvent)
 					}
 					l.currentState.addHovered(n)
@@ -487,14 +487,14 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			} else {
 				if l.currentState.isHovered(n) {
 					pointerOutEvent := events.PointerOut{
-						TargetElement: events.TargetElement{Target: n.Element},
-						Timestamp:     evt.Timestamp,
-						Pointer:       evt.Pointer,
+						TargetWidget: events.TargetWidget{Target: n.Widget},
+						Timestamp:    evt.Timestamp,
+						Pointer:      evt.Pointer,
 					}
 					if n.OnPointerOut != nil {
 						n.OnPointerOut(&pointerOutEvent)
 					}
-					if hout, ok := n.Element.(receivers.PointerOut); ok {
+					if hout, ok := n.Widget.(receivers.PointerOut); ok {
 						hout.HandlePointerOut(&pointerOutEvent)
 					}
 					l.currentState.removeHovered(n)
@@ -502,17 +502,17 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		case events.PointerPress:
 			if hit.Hit(evt.X, evt.Y) {
-				evt.Target = n.Element
-				if gx, ok := n.Element.(getters.X); ok {
+				evt.Target = n.Widget
+				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
 				}
-				if gy, ok := n.Element.(getters.Y); ok {
+				if gy, ok := n.Widget.(getters.Y); ok {
 					evt.RelativeY = evt.Y - gy.GetY()
 				}
 				if n.OnPointerPress != nil {
 					n.OnPointerPress(&evt)
 				}
-				if hpress, ok := n.Element.(receivers.PointerPress); ok {
+				if hpress, ok := n.Widget.(receivers.PointerPress); ok {
 					hpress.HandlePointerPress(&evt)
 				}
 				if !l.currentState.isPressed(n, e.(events.PointerPress).PointerID) {
@@ -521,30 +521,30 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		case events.PointerRelease:
 			if hit.Hit(evt.X, evt.Y) {
-				evt.Target = n.Element
-				if gx, ok := n.Element.(getters.X); ok {
+				evt.Target = n.Widget
+				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
 				}
-				if gy, ok := n.Element.(getters.Y); ok {
+				if gy, ok := n.Widget.(getters.Y); ok {
 					evt.RelativeY = evt.Y - gy.GetY()
 				}
 				if n.OnPointerRelease != nil {
 					n.OnPointerRelease(&evt)
 				}
-				if hrelease, ok := n.Element.(receivers.PointerRelease); ok {
+				if hrelease, ok := n.Widget.(receivers.PointerRelease); ok {
 					hrelease.HandlePointerRelease(&evt)
 				}
 				if l.currentState.isPressed(n, evt.PointerID) {
 					l.currentState.removePressed(n, evt.PointerID)
 					pointerPressedEvent := events.PointerPressed{
-						TargetElement: events.TargetElement{Target: n.Element},
-						Timestamp:     evt.Timestamp,
-						Pointer:       evt.Pointer,
+						TargetWidget: events.TargetWidget{Target: n.Widget},
+						Timestamp:    evt.Timestamp,
+						Pointer:      evt.Pointer,
 					}
 					if n.OnPointerPressed != nil {
 						n.OnPointerPressed(&pointerPressedEvent)
 					}
-					if hpress, ok := n.Element.(receivers.PointerPressed); ok {
+					if hpress, ok := n.Widget.(receivers.PointerPressed); ok {
 						hpress.HandlePointerPressed(&pointerPressedEvent)
 					}
 				}

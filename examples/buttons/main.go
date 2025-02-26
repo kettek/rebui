@@ -80,5 +80,5 @@ func (b *MyButton) HandlePointerPressed(e rebui.EventPointerPressed) {
 }
 
 func init() {
-	rebui.RegisterElement("MyButton", &MyButton{})
+	rebui.RegisterWidget("MyButton", &MyButton{})
 }

@@ -2,13 +2,13 @@ package rebui
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kettek/rebui/elements/getters"
-	"github.com/kettek/rebui/elements/receivers"
-	"github.com/kettek/rebui/elements/setters"
+	"github.com/kettek/rebui/widgets/getters"
+	"github.com/kettek/rebui/widgets/receivers"
+	"github.com/kettek/rebui/widgets/setters"
 )
 
-// Element is the interface that all elements must implement.
-type Element interface {
+// Widget is the interface that all widgets must implement.
+type Widget interface {
 	Draw(*ebiten.Image)
 }
 

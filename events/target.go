@@ -2,12 +2,12 @@ package events
 
 import "github.com/hajimehoshi/ebiten/v2"
 
-// Element is the interface that all widgets must implement.
-type Element interface {
+// Widget is the interface that all widgets must implement.
+type Widget interface {
 	Draw(*ebiten.Image)
 }
 
-// TargetElement is an event that has a target element.
-type TargetElement struct {
-	Target Element
+// TargetWidget is an event that has a target element.
+type TargetWidget struct {
+	Target Widget
 }

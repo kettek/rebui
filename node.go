@@ -16,7 +16,7 @@ type Node struct {
 	OriginY         string
 	Text            string
 	FontSize        string
-	Element         Element `json:"-"`
+	Widget          Widget `json:"-"`
 	BackgroundColor string
 	ForegroundColor string
 	BorderColor     string

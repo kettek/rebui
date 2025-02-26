@@ -76,5 +76,5 @@ func (w *Label) Draw(screen *ebiten.Image) {
 }
 
 func init() {
-	rebui.RegisterElement("Label", &Label{})
+	rebui.RegisterWidget("Label", &Label{})
 }
