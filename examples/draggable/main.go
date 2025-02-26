@@ -81,14 +81,14 @@ func (b *DraggableButton) HandlePointerGlobalRelease(e rebui.EventPointerRelease
 // HandlePointerGlobalMove receives a move event if the pointer received the a press event. Note that this will receive move events _per_ pointer, so 3 mouse buttons will move the element at 3 times delta.
 func (b *DraggableButton) HandlePointerGlobalMove(e rebui.EventPointerMove) {
 	// Ignore default move event.
-	if e.PointerID == -1 {
+	if e.ButtonID == -1 {
 		return
 	}
-	if e.PointerID == 0 {
+	if e.ButtonID == 0 {
 		b.X += e.DX
 		b.Y += e.DY
 	}
-	if e.PointerID == 2 {
+	if e.ButtonID == 2 {
 		b.Width += e.DX
 		b.Height += e.DY
 	}

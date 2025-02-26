@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"image/color"
 	"log"
+	"math"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -29,11 +30,25 @@ type Layout struct {
 	//
 	imageLoader         func(string) (*ebiten.Image, error)
 	relayout            bool
-	pressedMouseButtons []ebiten.MouseButton
+	pressedMouseButtons []mouse
+	activeTouches       []touch
 	lastMouseX          int
 	lastMouseY          int
 	lastWidth           float64
 	lastHeight          float64
+}
+
+type mouse struct {
+	id   ebiten.MouseButton
+	time time.Time // When this mouse event was started.
+}
+
+type touch struct {
+	id             ebiten.TouchID
+	time           time.Time // When this touch was started.
+	deltaX, deltaY int       // How much this touch has moved since last time.
+	x, y           int       // The current position of the touch.
+	movement       int       // How much this touch has moved -- used to determine longpress or move.
 }
 
 // GetByID returns the given node by its ID.
@@ -114,6 +129,12 @@ func (l *Layout) getSize() (w, h int) {
 }
 
 func (l *Layout) getEvents() (evts []Event) {
+	evts = append(evts, l.getMouseEvents()...)
+	evts = append(evts, l.getTouchEvents()...)
+	return
+}
+
+func (l *Layout) getMouseEvents() (evts []Event) {
 	x, y := l.getCursor()
 	w, h := l.getSize()
 
@@ -124,10 +145,10 @@ func (l *Layout) getEvents() (evts []Event) {
 	l.lastMouseX, l.lastMouseY = x, y
 	ts := time.Now()
 
-	var pressedMouseButtons []ebiten.MouseButton
-	var newPressedMouseButtons []ebiten.MouseButton
-	var releasedMouseButtons []ebiten.MouseButton
-	var oldPressedMouseButtons []ebiten.MouseButton
+	var pressedMouseButtons []mouse
+	var newPressedMouseButtons []mouse
+	var releasedMouseButtons []mouse
+	var oldPressedMouseButtons []mouse
 	checkMouseButtons := []ebiten.MouseButton{
 		ebiten.MouseButtonLeft,
 		ebiten.MouseButtonRight,
@@ -137,31 +158,31 @@ func (l *Layout) getEvents() (evts []Event) {
 	// Get current press state.
 	for _, mb := range checkMouseButtons {
 		if ebiten.IsMouseButtonPressed(mb) {
-			pressedMouseButtons = append(pressedMouseButtons, mb)
+			pressedMouseButtons = append(pressedMouseButtons, mouse{id: mb, time: ts})
 		}
 	}
 
 	// Check for any releases.
-	for i := 0; i < len(l.pressedMouseButtons); i++ {
-		btn := l.pressedMouseButtons[i]
+	for _, mb := range l.pressedMouseButtons {
 		exists := false
-		for _, mb := range pressedMouseButtons {
-			if btn == mb {
+		for _, mb2 := range pressedMouseButtons {
+			if mb.id == mb2.id {
 				exists = true
 				break
 			}
 		}
 		if !exists {
-			releasedMouseButtons = append(releasedMouseButtons, btn)
+			releasedMouseButtons = append(releasedMouseButtons, mb)
 		}
 	}
 
 	// Check for any new presses.
-	for _, mb := range pressedMouseButtons {
+	for i, mb := range pressedMouseButtons {
 		exists := false
-		for i := 0; i < len(l.pressedMouseButtons); i++ {
-			btn := l.pressedMouseButtons[i]
-			if btn == mb {
+		var prevMouse mouse
+		for _, mb2 := range l.pressedMouseButtons {
+			if mb.id == mb2.id {
+				prevMouse = mb2
 				exists = true
 				break
 			}
@@ -169,7 +190,8 @@ func (l *Layout) getEvents() (evts []Event) {
 		if !exists {
 			newPressedMouseButtons = append(newPressedMouseButtons, mb)
 		} else {
-			oldPressedMouseButtons = append(oldPressedMouseButtons, mb)
+			oldPressedMouseButtons = append(oldPressedMouseButtons, prevMouse)
+			pressedMouseButtons[i] = prevMouse // Ensure the mouse data is the same as from last frame, as pressedMouseButtons replaces l.pressedMouseButtons.
 		}
 	}
 
@@ -178,11 +200,11 @@ func (l *Layout) getEvents() (evts []Event) {
 		evts = append(evts, events.PointerPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Pointer: events.Pointer{
-				X:         float64(x),
-				Y:         float64(y),
-				DX:        float64(deltaX),
-				DY:        float64(deltaY),
-				PointerID: int(mb),
+				X:        float64(x),
+				Y:        float64(y),
+				DX:       float64(deltaX),
+				DY:       float64(deltaY),
+				ButtonID: int(mb.id),
 			},
 		})
 	}
@@ -190,12 +212,13 @@ func (l *Layout) getEvents() (evts []Event) {
 	for _, mb := range releasedMouseButtons {
 		evts = append(evts, events.PointerRelease{
 			Timestamp: events.Timestamp{Timestamp: ts},
+			Duration:  events.Duration{Duration: ts.Sub(mb.time)},
 			Pointer: events.Pointer{
-				X:         float64(x),
-				Y:         float64(y),
-				DX:        float64(deltaX),
-				DY:        float64(deltaY),
-				PointerID: int(mb),
+				X:        float64(x),
+				Y:        float64(y),
+				DX:       float64(deltaX),
+				DY:       float64(deltaY),
+				ButtonID: int(mb.id),
 			},
 		})
 	}
@@ -204,12 +227,13 @@ func (l *Layout) getEvents() (evts []Event) {
 		for _, mb := range oldPressedMouseButtons {
 			evts = append(evts, events.PointerMove{
 				Timestamp: events.Timestamp{Timestamp: ts},
+				Duration:  events.Duration{Duration: ts.Sub(mb.time)},
 				Pointer: events.Pointer{
-					X:         float64(x),
-					Y:         float64(y),
-					DX:        float64(deltaX),
-					DY:        float64(deltaY),
-					PointerID: int(mb),
+					X:        float64(x),
+					Y:        float64(y),
+					DX:       float64(deltaX),
+					DY:       float64(deltaY),
+					ButtonID: int(mb.id),
 				},
 			})
 		}
@@ -217,17 +241,124 @@ func (l *Layout) getEvents() (evts []Event) {
 		evts = append(evts, events.PointerMove{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Pointer: events.Pointer{
-				X:         float64(x),
-				Y:         float64(y),
-				DX:        float64(deltaX),
-				DY:        float64(deltaY),
-				PointerID: -1,
+				X:        float64(x),
+				Y:        float64(y),
+				DX:       float64(deltaX),
+				DY:       float64(deltaY),
+				ButtonID: -1,
 			},
 		})
 	}
 
 	// Replace the old.
 	l.pressedMouseButtons = pressedMouseButtons
+
+	return
+}
+
+func (l *Layout) getTouchEvents() (evts []Event) {
+	var activeTouches []touch
+	var releasedTouches []touch
+	var newTouches []touch
+	var oldTouches []touch
+
+	ts := time.Now()
+
+	// Get current touch state.
+	for _, id := range ebiten.AppendTouchIDs(nil) {
+		tx, ty := ebiten.TouchPosition(id)
+		activeTouches = append(activeTouches, touch{id: id, x: tx, y: ty, time: ts})
+	}
+
+	// Check for any touch releases.
+	for _, t := range l.activeTouches {
+		exists := false
+		var newTouch touch
+		for _, t2 := range activeTouches {
+			if t.id == t2.id {
+				exists = true
+				newTouch = t2
+				break
+			}
+		}
+		if !exists {
+			t.deltaX = newTouch.x - t.x
+			t.deltaY = newTouch.y - t.y
+			t.movement += int(math.Abs(float64(t.deltaX)) + math.Abs(float64(t.deltaY)))
+			releasedTouches = append(releasedTouches, t)
+		}
+	}
+
+	// Check for any new touches.
+	for i, t := range activeTouches {
+		exists := false
+		var prevTouch touch
+		for _, t2 := range l.activeTouches {
+			if t.id == t2.id {
+				prevTouch = t2
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			newTouches = append(newTouches, t)
+		} else {
+			tx, ty := ebiten.TouchPosition(t.id)
+			prevTouch.deltaX = tx - prevTouch.x
+			prevTouch.deltaY = ty - prevTouch.y
+			prevTouch.movement += int(math.Abs(float64(prevTouch.deltaX)) + math.Abs(float64(prevTouch.deltaY)))
+			prevTouch.x = tx
+			prevTouch.y = ty
+			oldTouches = append(oldTouches, prevTouch)
+			activeTouches[i] = prevTouch // Ensure the touch data is the same as from last frame, as activeTouches replaces l.activeTouches.
+		}
+	}
+
+	// Convert to events.
+	for _, t := range newTouches {
+		evts = append(evts, events.PointerPress{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Pointer: events.Pointer{
+				X:       float64(t.x),
+				Y:       float64(t.y),
+				DX:      float64(t.deltaX),
+				DY:      float64(t.deltaY),
+				TouchID: int(t.id),
+			},
+		})
+	}
+
+	for _, t := range releasedTouches {
+		evts = append(evts, events.PointerRelease{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Duration:  events.Duration{Duration: ts.Sub(t.time)},
+			Pointer: events.Pointer{
+				X:       float64(t.x),
+				Y:       float64(t.y),
+				DX:      float64(t.deltaX),
+				DY:      float64(t.deltaY),
+				TouchID: int(t.id),
+			},
+		})
+	}
+
+	for _, t := range oldTouches {
+		if t.deltaX != 0 || t.deltaY != 0 {
+			evts = append(evts, events.PointerMove{
+				Timestamp: events.Timestamp{Timestamp: ts},
+				Duration:  events.Duration{Duration: ts.Sub(t.time)},
+				Pointer: events.Pointer{
+					X:       float64(t.x),
+					Y:       float64(t.y),
+					DX:      float64(t.deltaX),
+					DY:      float64(t.deltaY),
+					TouchID: int(t.id),
+				},
+			})
+		}
+	}
+
+	l.activeTouches = activeTouches
 
 	return
 }
@@ -252,9 +383,15 @@ func (l *Layout) Update() {
 			}
 			switch evt := e.(type) {
 			case events.PointerRelease:
+				pid := -1
+				if evt.TouchID > 0 { // I hope touches can't be 0...
+					pid = evt.TouchID
+				} else {
+					pid = evt.ButtonID
+				}
 				// Clear out any held releases.
 				for _, n := range l.Nodes {
-					if l.currentState.isPressed(n, evt.PointerID) {
+					if l.currentState.isPressed(n, pid) {
 						evt.Widget = n.Widget
 						if gx, ok := n.Widget.(getters.X); ok {
 							evt.RelativeX = evt.X - gx.GetX()
@@ -270,8 +407,14 @@ func (l *Layout) Update() {
 						}
 					}
 				}
-				l.currentState.removePressedID(evt.PointerID)
+				l.currentState.removePressedID(pid)
 			case events.PointerMove:
+				pid := -1
+				if evt.TouchID > 0 { // I hope touches can't be 0...
+					pid = evt.TouchID
+				} else {
+					pid = evt.ButtonID
+				}
 				// Handle any global move handlers that were pressed.
 				for _, n := range l.Nodes {
 					evt.Widget = n.Widget
@@ -281,7 +424,7 @@ func (l *Layout) Update() {
 					if gy, ok := n.Widget.(getters.Y); ok {
 						evt.RelativeY = evt.Y - gy.GetY()
 					}
-					if l.currentState.isPressed(n, evt.PointerID) {
+					if l.currentState.isPressed(n, pid) {
 						if n.OnPointerGlobalMove != nil {
 							n.OnPointerGlobalMove(&evt)
 						}
@@ -514,6 +657,12 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		case events.PointerPress:
 			if hit.Hit(evt.X, evt.Y) {
+				pid := -1
+				if evt.TouchID > 0 { // I hope touches can't be 0...
+					pid = evt.TouchID
+				} else {
+					pid = evt.ButtonID
+				}
 				evt.Widget = n.Widget
 				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
@@ -527,12 +676,18 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				if hpress, ok := n.Widget.(receivers.PointerPress); ok {
 					hpress.HandlePointerPress(&evt)
 				}
-				if !l.currentState.isPressed(n, e.(events.PointerPress).PointerID) {
-					l.currentState.addPressed(n, e.(events.PointerPress).PointerID)
+				if !l.currentState.isPressed(n, pid) {
+					l.currentState.addPressed(n, pid)
 				}
 			}
 		case events.PointerRelease:
 			if hit.Hit(evt.X, evt.Y) {
+				pid := -1
+				if evt.TouchID > 0 { // I hope touches can't be 0...
+					pid = evt.TouchID
+				} else {
+					pid = evt.ButtonID
+				}
 				evt.Widget = n.Widget
 				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
@@ -546,10 +701,11 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				if hrelease, ok := n.Widget.(receivers.PointerRelease); ok {
 					hrelease.HandlePointerRelease(&evt)
 				}
-				if l.currentState.isPressed(n, evt.PointerID) {
-					l.currentState.removePressed(n, evt.PointerID)
+				if l.currentState.isPressed(n, pid) {
+					l.currentState.removePressed(n, pid)
 					pointerPressedEvent := events.PointerPressed{
 						TargetWidget: events.TargetWidget{Widget: n.Widget},
+						Duration:     evt.Duration,
 						Timestamp:    evt.Timestamp,
 						Pointer:      evt.Pointer,
 					}

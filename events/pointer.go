@@ -6,7 +6,8 @@ type Pointer struct {
 	DX, DY float64
 	// These values are X and Y values relative to the interior of the event receiver, if applicable.
 	RelativeX, RelativeY float64
-	PointerID            int
+	ButtonID             int // The mouse button this represents if applicable.
+	TouchID              int // The touch this represents if applicable.
 }
 
 // Cancelable is an event that can be canceled. This is the case for all events.
@@ -29,6 +30,7 @@ type PointerMove struct {
 	Cancelable
 	TargetWidget
 	Timestamp
+	Duration // How long this move event has been happening.
 	Pointer
 }
 
@@ -61,13 +63,15 @@ type PointerRelease struct {
 	Cancelable
 	TargetWidget
 	Timestamp
+	Duration // How long elapsed from press until release.
 	Pointer
 }
 
-// PointerPressed is an event that is triggered when an elemenbt has received both a press and a release event.
+// PointerPressed is an event that is triggered when an element has received both a press and a release event.
 type PointerPressed struct {
 	Cancelable
 	TargetWidget
 	Timestamp
+	Duration // How long elapsed from press until release.
 	Pointer
 }
