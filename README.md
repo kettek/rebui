@@ -201,7 +201,7 @@ func (b *MyButton) HandlePointerPressed(evt rebui.EventPointerPressed) {
 }
 ```
 
-A Node with a variable defines in the current scope:
+A locally scoped Node variable:
 
 ```golang
 node := layout.GetByID("button1")
