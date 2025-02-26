@@ -21,7 +21,7 @@ import (
 
 // Layout is used to control layout and manage evts.
 type Layout struct {
-	RenderWidget  *ebiten.Image
+	RenderTarget  *ebiten.Image
 	ClampPointers bool
 	generated     bool
 	Nodes         []*Node
@@ -93,8 +93,8 @@ func (l *Layout) AddNode(n Node) {
 }
 
 func (l *Layout) getCursor() (x, y int) {
-	if l.RenderWidget != nil {
-		w, h := l.RenderWidget.Bounds().Dx(), l.RenderWidget.Bounds().Dy()
+	if l.RenderTarget != nil {
+		w, h := l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
 		x, y = ebiten.CursorPosition()
 		x = int((float64(x) / float64(w)) * float64(w))
 		y = int((float64(y) / float64(h)) * float64(h))
@@ -106,8 +106,8 @@ func (l *Layout) getCursor() (x, y int) {
 
 func (l *Layout) getSize() (w, h int) {
 	w, h = ebiten.WindowSize()
-	if l.RenderWidget != nil {
-		w, h = l.RenderWidget.Bounds().Dx(), l.RenderWidget.Bounds().Dy()
+	if l.RenderTarget != nil {
+		w, h = l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
 	}
 	return
 }
@@ -296,7 +296,7 @@ func (l *Layout) Update() {
 
 // Draw draws the Nodes to the screen
 func (l *Layout) Draw(screen *ebiten.Image) {
-	l.RenderWidget = screen
+	l.RenderTarget = screen
 	if l.lastWidth != float64(screen.Bounds().Dx()) || l.lastHeight != float64(screen.Bounds().Dy()) {
 		l.lastWidth = float64(screen.Bounds().Dx())
 		l.lastHeight = float64(screen.Bounds().Dy())
@@ -316,7 +316,7 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 			} else {
 				op.GeoM.Translate(0, n.y)
 			}
-			n.Widget.Draw(screen, op)
+			n.Widget.Draw(l.RenderTarget, op)
 		}
 	}
 }
