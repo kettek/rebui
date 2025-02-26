@@ -79,12 +79,8 @@ func (l *Layout) Generate() {
 
 // Layout repositions all nodes.
 func (l *Layout) Layout(ow, oh float64) {
-	if l.lastWidth != ow || l.lastHeight != oh {
-		for _, n := range l.Nodes {
-			l.layoutNode(n, ow, oh)
-		}
-		l.lastWidth = ow
-		l.lastHeight = oh
+	for _, n := range l.Nodes {
+		l.layoutNode(n, ow, oh)
 	}
 }
 
@@ -288,6 +284,12 @@ func (l *Layout) Update() {
 // Draw draws the Nodes to the screen
 func (l *Layout) Draw(screen *ebiten.Image) {
 	l.RenderTarget = screen
+	if l.lastWidth != float64(screen.Bounds().Dx()) || l.lastHeight != float64(screen.Bounds().Dy()) {
+		l.lastWidth = float64(screen.Bounds().Dx())
+		l.lastHeight = float64(screen.Bounds().Dy())
+		l.relayout = true
+	}
+
 	for _, n := range l.Nodes {
 		if n.Element != nil {
 			n.Element.Draw(screen)

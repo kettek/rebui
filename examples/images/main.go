@@ -33,7 +33,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return 640, 480
+	return outsideWidth, outsideHeight
 }
 
 func main() {
@@ -63,6 +63,7 @@ func main() {
 	g.layout.Generate()
 
 	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
 
 	if err := ebiten.RunGame(g); err != nil {
