@@ -86,10 +86,11 @@ func (l *Layout) Layout(ow, oh float64) {
 }
 
 // AddNode adds the given node and generates it.
-func (l *Layout) AddNode(n Node) {
+func (l *Layout) AddNode(n Node) *Node {
 	l.Nodes = append(l.Nodes, &n)
 	l.generateNode(&n)
 	l.relayout = true
+	return l.Nodes[len(l.Nodes)-1]
 }
 
 func (l *Layout) getCursor() (x, y int) {
