@@ -52,19 +52,19 @@ func (w *Text) Draw(screen *ebiten.Image) {
 		txtOptions.GeoM.Translate(w.X, w.Y)
 
 		switch w.halign {
-		case rebui.Center:
+		case rebui.AlignCenter:
 			txtOptions.GeoM.Translate(w.Width/2, 0)
 			txtOptions.LayoutOptions.PrimaryAlign = text.AlignCenter
-		case rebui.Right:
+		case rebui.AlignRight:
 			txtOptions.LayoutOptions.PrimaryAlign = text.AlignEnd
 			txtOptions.GeoM.Translate(w.Width, 0)
 		}
 
 		switch w.valign {
-		case rebui.Middle:
+		case rebui.AlignMiddle:
 			txtOptions.GeoM.Translate(0, w.Height/2)
 			txtOptions.LayoutOptions.SecondaryAlign = text.AlignCenter
-		case rebui.Bottom:
+		case rebui.AlignBottom:
 			txtOptions.GeoM.Translate(0, w.Height)
 			txtOptions.LayoutOptions.SecondaryAlign = text.AlignEnd
 		}

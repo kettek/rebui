@@ -46,11 +46,11 @@ func (el *Image) Draw(screen *ebiten.Image) {
 		sw, sh := float64(el.Width), float64(el.Height)
 
 		switch el.scale {
-		case rebui.Fill:
+		case rebui.ImageScaleFill:
 			op.GeoM.Scale(sw/iw, sh/ih)
 			iw *= sw / iw
 			ih *= sh / ih
-		case rebui.Cover:
+		case rebui.ImageScaleCover:
 			if iw < ih {
 				op.GeoM.Scale(sh/ih, sh/ih)
 				iw *= sh / ih
@@ -60,7 +60,7 @@ func (el *Image) Draw(screen *ebiten.Image) {
 				iw *= sw / iw
 				ih *= sw / iw
 			}
-		case rebui.Nearest:
+		case rebui.ImageScaleNearest:
 			scale := math.Floor(sw / iw)
 			if sh/ih < scale {
 				scale = math.Floor(sh / ih)
@@ -70,20 +70,20 @@ func (el *Image) Draw(screen *ebiten.Image) {
 			ih *= scale
 		}
 
-		if el.halign == rebui.Center {
+		if el.halign == rebui.AlignCenter {
 			op.GeoM.Translate(el.X+el.Width/2, 0)
 			op.GeoM.Translate(-float64(iw)/2, 0)
-		} else if el.halign == rebui.Right {
+		} else if el.halign == rebui.AlignRight {
 			op.GeoM.Translate(el.X+el.Width, 0)
 			op.GeoM.Translate(-float64(iw), 0)
 		} else {
 			op.GeoM.Translate(el.X, 0)
 		}
 
-		if el.valign == rebui.Middle {
+		if el.valign == rebui.AlignMiddle {
 			op.GeoM.Translate(0, el.Y+el.Height/2)
 			op.GeoM.Translate(0, -float64(ih)/2)
-		} else if el.valign == rebui.Bottom {
+		} else if el.valign == rebui.AlignBottom {
 			op.GeoM.Translate(0, el.Y+el.Height)
 			op.GeoM.Translate(0, -float64(ih))
 		} else {

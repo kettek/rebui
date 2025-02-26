@@ -28,14 +28,14 @@ type Node struct {
 }
 
 type nodeHooks struct {
-	OnPointerIn            func(PointerInEvent)
-	OnPointerOut           func(PointerOutEvent)
-	OnPointerMove          func(PointerMoveEvent)
-	OnPointerPress         func(PointerPressEvent)
-	OnPointerRelease       func(PointerReleaseEvent)
-	OnPointerPressed       func(PointerPressedEvent)
-	OnPointerGlobalRelease func(PointerReleaseEvent)
-	OnPointerGlobalMove    func(PointerMoveEvent)
+	OnPointerIn            func(EventPointerIn)
+	OnPointerOut           func(EventPointerOut)
+	OnPointerMove          func(EventPointerMove)
+	OnPointerPress         func(EventPointerPress)
+	OnPointerRelease       func(EventPointerRelease)
+	OnPointerPressed       func(EventPointerPressed)
+	OnPointerGlobalRelease func(EventPointerRelease)
+	OnPointerGlobalMove    func(EventPointerMove)
 }
 
 // pressedNode is a convenience struct that corresponds a given node with a pointer ID.

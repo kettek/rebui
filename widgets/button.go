@@ -22,8 +22,6 @@ func (b *Button) SetBorderColor(clr color.Color) {
 	b.borderColor = clr
 }
 
-
-
 func (b *Button) Draw(screen *ebiten.Image) {
 	x := b.X
 	y := b.Y

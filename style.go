@@ -1,29 +1,27 @@
 package rebui
 
-// Alignment is used to determine how text, images, or otherwise are aligned.
-type Alignment string
+import "github.com/kettek/rebui/style"
 
-// Our various alignments.
+// Alignment is a type alias for style.Alignment.
+type Alignment = style.Alignment
+
+// Our alignment types. See style package for more info.
 const (
-	Left   Alignment = "left"
-	Center Alignment = "center"
-	Right  Alignment = "right"
-	Top    Alignment = "top"
-	Middle Alignment = "middle"
-	Bottom Alignment = "bottom"
+	AlignLeft   = style.Left
+	AlignCenter = style.Center
+	AlignRight  = style.Right
+	AlignTop    = style.Top
+	AlignMiddle = style.Middle
+	AlignBottom = style.Bottom
 )
 
-// ImageScale is used to determine how images scale within their element.
-type ImageScale string
+// ImageScale is a type alias for style.ImageScale.
+type ImageScale = style.ImageScale
 
-// Our various scaling.
+// Our image scaling types. See style package for more info.
 const (
-	// None doesn't apply any scaling.
-	None ImageScale = "none"
-	// Fill will stretch the image to fit the element.
-	Fill ImageScale = "fill"
-	// Cover will fit the image within the element, maintaining aspect ratio.
-	Cover ImageScale = "cover"
-	// Nearest works like Cover, but to nearest whole multiple.
-	Nearest ImageScale = "nearest"
+	ImageScaleNone    = style.None
+	ImageScaleFill    = style.Fill
+	ImageScaleCover   = style.Cover
+	ImageScaleNearest = style.Nearest
 )

@@ -12,9 +12,11 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kettek/rebui/events"
+	"github.com/kettek/rebui/style"
 )
 
-// Layout is used to control layout and manage events.
+// Layout is used to control layout and manage evts.
 type Layout struct {
 	RenderTarget  *ebiten.Image
 	ClampPointers bool
@@ -111,7 +113,7 @@ func (l *Layout) getSize() (w, h int) {
 	return
 }
 
-func (l *Layout) getEvents() (events []Event) {
+func (l *Layout) getEvents() (evts []Event) {
 	x, y := l.getCursor()
 	w, h := l.getSize()
 
@@ -171,11 +173,11 @@ func (l *Layout) getEvents() (events []Event) {
 		}
 	}
 
-	// Alright, let's convert them to pointer events.
+	// Alright, let's convert them to pointer evts.
 	for _, mb := range newPressedMouseButtons {
-		events = append(events, &pointerPressEvent{
-			TimestampEvent: TimestampEvent{Timestamp: ts},
-			PointerEvent: PointerEvent{
+		evts = append(evts, events.PointerPress{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Pointer: events.Pointer{
 				X:         float64(x),
 				Y:         float64(y),
 				DX:        float64(deltaX),
@@ -186,9 +188,9 @@ func (l *Layout) getEvents() (events []Event) {
 	}
 
 	for _, mb := range releasedMouseButtons {
-		events = append(events, &pointerReleaseEvent{
-			TimestampEvent: TimestampEvent{Timestamp: ts},
-			PointerEvent: PointerEvent{
+		evts = append(evts, events.PointerRelease{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Pointer: events.Pointer{
 				X:         float64(x),
 				Y:         float64(y),
 				DX:        float64(deltaX),
@@ -200,9 +202,9 @@ func (l *Layout) getEvents() (events []Event) {
 
 	if deltaX != 0 || deltaY != 0 {
 		for _, mb := range oldPressedMouseButtons {
-			events = append(events, &pointerMoveEvent{
-				TimestampEvent: TimestampEvent{Timestamp: ts},
-				PointerEvent: PointerEvent{
+			evts = append(evts, events.PointerMove{
+				Timestamp: events.Timestamp{Timestamp: ts},
+				Pointer: events.Pointer{
 					X:         float64(x),
 					Y:         float64(y),
 					DX:        float64(deltaX),
@@ -212,9 +214,9 @@ func (l *Layout) getEvents() (events []Event) {
 			})
 		}
 		// And have an event for no pointer (-1)
-		events = append(events, &pointerMoveEvent{
-			TimestampEvent: TimestampEvent{Timestamp: ts},
-			PointerEvent: PointerEvent{
+		evts = append(evts, events.PointerMove{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Pointer: events.Pointer{
 				X:         float64(x),
 				Y:         float64(y),
 				DX:        float64(deltaX),
@@ -230,7 +232,7 @@ func (l *Layout) getEvents() (events []Event) {
 	return
 }
 
-// Update collects events and propagates them to the contained Elements.
+// Update collects evts and propagates them to the contained Elements.
 func (l *Layout) Update() {
 	if l.relayout {
 		w, h := l.getSize()
@@ -238,41 +240,41 @@ func (l *Layout) Update() {
 		l.relayout = false
 	}
 
-	// TODO: Allow passing in a block events list, where various event types can be prevented from occurring -- this might come in use.
-	if events := l.getEvents(); len(events) > 0 {
-		for _, e := range events {
+	// TODO: Allow passing in a block evts list, where various event types can be prevented from occurring -- this might come in use.
+	if evts := l.getEvents(); len(evts) > 0 {
+		for _, e := range evts {
 			// Iterate our nodes...
 			for _, n := range l.Nodes {
 				l.processNodeEvent(n, e)
-				if e.Canceled() {
+				if ec, ok := e.(EventCancelable); ok && ec.Canceled() {
 					break
 				}
 			}
-			switch event := e.(type) {
-			case *pointerReleaseEvent:
+			switch evt := e.(type) {
+			case events.PointerRelease:
 				// Clear out any held releases.
 				for _, n := range l.Nodes {
-					if l.currentState.isPressed(n, event.PointerID) {
-						event.Target = n.Element
+					if l.currentState.isPressed(n, evt.PointerID) {
+						evt.Target = n.Element
 						if n.OnPointerGlobalRelease != nil {
-							n.OnPointerGlobalRelease(event)
+							n.OnPointerGlobalRelease(&evt)
 						}
 						if hrelease, ok := n.Element.(GlobalReleaseReceiver); ok {
-							hrelease.HandlePointerGlobalRelease(event)
+							hrelease.HandlePointerGlobalRelease(&evt)
 						}
 					}
 				}
-				l.currentState.removePressedID(event.PointerID)
-			case *pointerMoveEvent:
+				l.currentState.removePressedID(evt.PointerID)
+			case events.PointerMove:
 				// Handle any global move handlers that were pressed.
 				for _, n := range l.Nodes {
-					event.Target = n.Element
-					if l.currentState.isPressed(n, event.PointerID) {
+					evt.Target = n.Element
+					if l.currentState.isPressed(n, evt.PointerID) {
 						if n.OnPointerGlobalMove != nil {
-							n.OnPointerGlobalMove(event)
+							n.OnPointerGlobalMove(&evt)
 						}
 						if hmove, ok := n.Element.(GlobalMoveReceiver); ok {
-							hmove.HandlePointerGlobalMove(event)
+							hmove.HandlePointerGlobalMove(&evt)
 						}
 					}
 				}
@@ -301,13 +303,13 @@ func (l *Layout) generateNode(n *Node) {
 			n.Element = reflect.New(reflect.TypeOf(h).Elem()).Interface().(Element)
 			// Call our setter interfaces if desired.
 			if bcs, ok := n.Element.(BackgroundColorSetter); ok {
-				bcs.SetBackgroundColor(stringToColor(n.BackgroundColor, DefaultTheme.BackgroundColor))
+				bcs.SetBackgroundColor(stringToColor(n.BackgroundColor, style.CurrentTheme().BackgroundColor))
 			}
 			if fcs, ok := n.Element.(ForegroundColorSetter); ok {
-				fcs.SetForegroundColor(stringToColor(n.ForegroundColor, DefaultTheme.ForegroundColor))
+				fcs.SetForegroundColor(stringToColor(n.ForegroundColor, style.CurrentTheme().ForegroundColor))
 			}
 			if bcs, ok := n.Element.(BorderColorSetter); ok {
-				bcs.SetBorderColor(stringToColor(n.BorderColor, DefaultTheme.BorderColor))
+				bcs.SetBorderColor(stringToColor(n.BorderColor, style.CurrentTheme().BorderColor))
 			}
 			if vas, ok := n.Element.(VerticalAlignmentSetter); ok {
 				vas.SetVerticalAlignment(n.VerticalAlign)
@@ -319,11 +321,11 @@ func (l *Layout) generateNode(n *Node) {
 				ts.SetText(n.Text)
 			}
 			if fs, ok := n.Element.(FontFaceSetter); ok {
-				fs.SetFontFace(CurrentTheme().FontFace)
+				fs.SetFontFace(style.CurrentTheme().FontFace)
 			}
 			if n.FontSize != "" {
 				if fs, ok := n.Element.(FontSizeSetter); ok {
-					if ff, ok := CurrentTheme().FontFace.(*text.GoTextFace); ok {
+					if ff, ok := style.CurrentTheme().FontFace.(*text.GoTextFace); ok {
 						size := stringToPosition(l, n.FontSize, ff.Size, true) // FIXME: This re-use is goofy, as it allows unintended at/after usage.
 						fs.SetFontSize(size)
 					}
@@ -398,89 +400,80 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 
 func (l *Layout) processNodeEvent(n *Node, e Event) {
 	if hit, ok := n.Element.(HitChecker); ok {
-		switch event := e.(type) {
-		case PointerMoveEvent:
-			if hit.Hit(event.X, event.Y) {
-				event.Target = n.Element
+		switch evt := e.(type) {
+		case events.PointerMove:
+			if hit.Hit(evt.X, evt.Y) {
+				evt.Target = n.Element
 				if n.OnPointerMove != nil {
-					n.OnPointerMove(event)
+					n.OnPointerMove(&evt)
 				}
 				if hmove, ok := n.Element.(PointerMoveReceiver); ok {
-					hmove.HandlePointerMove(event)
+					hmove.HandlePointerMove(&evt)
 				}
 				if !l.currentState.isHovered(n) {
+					pointerInEvent := events.PointerIn{
+						TargetElement: events.TargetElement{Target: n.Element},
+						Timestamp:     evt.Timestamp,
+						Pointer:       evt.Pointer,
+					}
 					if n.OnPointerIn != nil {
-						n.OnPointerIn(&pointerInEvent{
-							TargetElementEvent: TargetElementEvent{n.Element},
-							TimestampEvent:     event.TimestampEvent,
-							PointerEvent:       event.PointerEvent,
-						})
+						n.OnPointerIn(&pointerInEvent)
 					}
 					if hin, ok := n.Element.(PointerInReceiver); ok {
-						hin.HandlePointerIn(&pointerInEvent{
-							TargetElementEvent: TargetElementEvent{n.Element},
-							TimestampEvent:     event.TimestampEvent,
-							PointerEvent:       event.PointerEvent,
-						})
+						hin.HandlePointerIn(&pointerInEvent)
 					}
 					l.currentState.addHovered(n)
 				}
 			} else {
 				if l.currentState.isHovered(n) {
+					pointerOutEvent := events.PointerOut{
+						TargetElement: events.TargetElement{Target: n.Element},
+						Timestamp:     evt.Timestamp,
+						Pointer:       evt.Pointer,
+					}
 					if n.OnPointerOut != nil {
-						n.OnPointerOut(&pointerOutEvent{
-							TargetElementEvent: TargetElementEvent{n.Element},
-							TimestampEvent:     event.TimestampEvent,
-							PointerEvent:       event.PointerEvent,
-						})
+						n.OnPointerOut(&pointerOutEvent)
 					}
 					if hout, ok := n.Element.(PointerOutReceiver); ok {
-						hout.HandlePointerOut(&pointerOutEvent{
-							TargetElementEvent: TargetElementEvent{n.Element},
-							TimestampEvent:     event.TimestampEvent,
-							PointerEvent:       event.PointerEvent,
-						})
+						hout.HandlePointerOut(&pointerOutEvent)
 					}
 					l.currentState.removeHovered(n)
 				}
 			}
-		case PointerPressEvent:
-			if hit.Hit(event.X, event.Y) {
-				event.Target = n.Element
+		case events.PointerPress:
+			if hit.Hit(evt.X, evt.Y) {
+				evt.Target = n.Element
 				if n.OnPointerPress != nil {
-					n.OnPointerPress(event)
+					n.OnPointerPress(&evt)
 				}
 				if hpress, ok := n.Element.(PressReceiver); ok {
-					hpress.HandlePointerPress(event)
+					hpress.HandlePointerPress(&evt)
 				}
-				if !l.currentState.isPressed(n, e.(*pointerPressEvent).PointerID) {
-					l.currentState.addPressed(n, e.(*pointerPressEvent).PointerID)
+				if !l.currentState.isPressed(n, e.(events.PointerPress).PointerID) {
+					l.currentState.addPressed(n, e.(events.PointerPress).PointerID)
 				}
 			}
-		case PointerReleaseEvent:
-			if hit.Hit(event.X, event.Y) {
-				event.Target = n.Element
+		case events.PointerRelease:
+			if hit.Hit(evt.X, evt.Y) {
+				evt.Target = n.Element
 				if n.OnPointerRelease != nil {
-					n.OnPointerRelease(event)
+					n.OnPointerRelease(&evt)
 				}
 				if hrelease, ok := n.Element.(ReleaseReceiver); ok {
-					hrelease.HandlePointerRelease(event)
+					hrelease.HandlePointerRelease(&evt)
 				}
-				if l.currentState.isPressed(n, event.PointerID) {
-					l.currentState.removePressed(n, event.PointerID)
+				if l.currentState.isPressed(n, evt.PointerID) {
+					l.currentState.removePressed(n, evt.PointerID)
+					pointerPressedEvent := events.PointerPressed{
+						TargetElement: events.TargetElement{Target: n.Element},
+						Timestamp:     evt.Timestamp,
+						Pointer:       evt.Pointer,
+					}
 					if n.OnPointerPressed != nil {
-						n.OnPointerPressed(&pointerPressedEvent{
-							TargetElementEvent: TargetElementEvent{n.Element},
-							TimestampEvent:     event.TimestampEvent,
-							PointerEvent:       event.PointerEvent,
-						})
+						n.OnPointerPressed(&pointerPressedEvent)
 					}
 					if hpress, ok := n.Element.(PressedReceiver); ok {
-						hpress.HandlePointerPressed(&pointerPressedEvent{
-							TargetElementEvent: TargetElementEvent{n.Element},
-							TimestampEvent:     event.TimestampEvent,
-							PointerEvent:       event.PointerEvent,
-						})
+						hpress.HandlePointerPressed(&pointerPressedEvent)
 					}
 				}
 			}

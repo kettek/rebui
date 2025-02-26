@@ -52,19 +52,19 @@ type MyButton struct {
 	widgets.Button
 }
 
-func (b *MyButton) HandlePointerIn(e rebui.PointerInEvent) {
+func (b *MyButton) HandlePointerIn(e rebui.EventPointerIn) {
 	b.SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
 }
 
-func (b *MyButton) HandlePointerOut(e rebui.PointerOutEvent) {
+func (b *MyButton) HandlePointerOut(e rebui.EventPointerOut) {
 	b.SetBackgroundColor(color.NRGBA{255, 0, 0, 255})
 }
 
-func (b *MyButton) HandlePointerPress(e rebui.PointerPressEvent) {
+func (b *MyButton) HandlePointerPress(e rebui.EventPointerPress) {
 	b.SetBackgroundColor(color.NRGBA{0, 0, 255, 255})
 }
 
-func (b *MyButton) HandlePointerRelease(e rebui.PointerReleaseEvent) {
+func (b *MyButton) HandlePointerRelease(e rebui.EventPointerRelease) {
 	b.SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
 }
 

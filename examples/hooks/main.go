@@ -42,17 +42,17 @@ func main() {
 
 	node := g.layout.GetByID("button1")
 
-	node.OnPointerIn = func(e rebui.PointerInEvent) {
+	node.OnPointerIn = func(e rebui.EventPointerIn) {
 		e.Target.(*widgets.Button).SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
 	}
 
-	node.OnPointerOut = func(e rebui.PointerOutEvent) {
+	node.OnPointerOut = func(e rebui.EventPointerOut) {
 		e.Target.(*widgets.Button).SetBackgroundColor(color.NRGBA{255, 0, 0, 255})
 	}
-	node.OnPointerPress = func(e rebui.PointerPressEvent) {
+	node.OnPointerPress = func(e rebui.EventPointerPress) {
 		e.Target.(*widgets.Button).SetBackgroundColor(color.NRGBA{0, 0, 255, 255})
 	}
-	node.OnPointerRelease = func(e rebui.PointerReleaseEvent) {
+	node.OnPointerRelease = func(e rebui.EventPointerRelease) {
 		e.Target.(*widgets.Button).SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
 	}
 

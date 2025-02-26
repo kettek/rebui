@@ -135,42 +135,42 @@ type HeightSetter interface {
 
 // PointerMoveReceiver is used to receive pointer move events.
 type PointerMoveReceiver interface {
-	HandlePointerMove(PointerMoveEvent)
+	HandlePointerMove(EventPointerMove)
 }
 
 // GlobalMoveReceiver is used to receive global pointer move events. Note that these move events will only be received if the element received a press event (there does not have to be a handler).
 type GlobalMoveReceiver interface {
-	HandlePointerGlobalMove(PointerMoveEvent)
+	HandlePointerGlobalMove(EventPointerMove)
 }
 
 // PointerInReceiver is used to receive pointer in events.
 type PointerInReceiver interface {
-	HandlePointerIn(PointerInEvent)
+	HandlePointerIn(EventPointerIn)
 }
 
 // PointerOutReceiver is used to receive pointer out events.
 type PointerOutReceiver interface {
-	HandlePointerOut(PointerOutEvent)
+	HandlePointerOut(EventPointerOut)
 }
 
 // PressReceiver is used to receive pointer press events. This occurs when a mouse button is pressed on the element.
 type PressReceiver interface {
-	HandlePointerPress(PointerPressEvent)
+	HandlePointerPress(EventPointerPress)
 }
 
 // ReleaseReceiver is used to receive pointer release events. This occurs when a mouse button is released on the element.
 type ReleaseReceiver interface {
-	HandlePointerRelease(PointerReleaseEvent)
+	HandlePointerRelease(EventPointerRelease)
 }
 
 // GlobalReleaseReceiver is used to receive global pointer release events. Note that these release events will only be received if the element received a press event (there does not have to be a handler).
 type GlobalReleaseReceiver interface {
-	HandlePointerGlobalRelease(PointerReleaseEvent)
+	HandlePointerGlobalRelease(EventPointerRelease)
 }
 
 // PressedReceiver is used to receive a press and subsequent release on the same element. This is akin to a "Click" event.
 type PressedReceiver interface {
-	HandlePointerPressed(PointerPressedEvent)
+	HandlePointerPressed(EventPointerPressed)
 }
 
 // HitChecker checks if the given coordinate hits the target element.

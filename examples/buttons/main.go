@@ -55,27 +55,27 @@ type MyButton struct {
 	widgets.Button
 }
 
-func (b *MyButton) HandlePointerIn(e rebui.PointerInEvent) {
+func (b *MyButton) HandlePointerIn(e rebui.EventPointerIn) {
 	fmt.Println("PointerIn", e)
 }
 
-func (b *MyButton) HandlePointerOut(e rebui.PointerOutEvent) {
+func (b *MyButton) HandlePointerOut(e rebui.EventPointerOut) {
 	fmt.Println("PointerOut", e)
 }
 
-func (b *MyButton) HandlePointerMove(e rebui.PointerMoveEvent) {
+func (b *MyButton) HandlePointerMove(e rebui.EventPointerMove) {
 	fmt.Println("PointerMove", e)
 }
 
-func (b *MyButton) HandlePointerPress(e rebui.PointerPressEvent) {
+func (b *MyButton) HandlePointerPress(e rebui.EventPointerPress) {
 	fmt.Println("PointerPress", e)
 }
 
-func (b *MyButton) HandlePointerRelease(e rebui.PointerReleaseEvent) {
+func (b *MyButton) HandlePointerRelease(e rebui.EventPointerRelease) {
 	fmt.Println("Release", e)
 }
 
-func (b *MyButton) HandlePointerPressed(e rebui.PointerPressedEvent) {
+func (b *MyButton) HandlePointerPressed(e rebui.EventPointerPressed) {
 	fmt.Println("Pressed", e)
 }
 
