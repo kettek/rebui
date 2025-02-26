@@ -12,6 +12,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kettek/rebui/elements/getters"
 	"github.com/kettek/rebui/elements/receivers"
 	"github.com/kettek/rebui/elements/setters"
 	"github.com/kettek/rebui/events"
@@ -363,42 +364,79 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	nodeHeight := outerHeight
 	nodeX := 0.0
 	nodeY := 0.0
-	if n.Width != "" {
-		nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
-		if ws, ok := n.Element.(setters.Width); ok {
-			ws.SetWidth(nodeWidth)
+
+	var skipWidth bool
+	var skipHeight bool
+	if wg, ok := n.Element.(getters.Width); ok {
+		if wg.GetWidth() != n.width {
+			skipWidth = true
 		}
-		n.width = nodeWidth
 	}
-	if n.Height != "" {
-		nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
-		if hs, ok := n.Element.(setters.Height); ok {
-			hs.SetHeight(nodeHeight)
+	if hg, ok := n.Element.(getters.Height); ok {
+		if hg.GetHeight() != n.height {
+			skipHeight = true
 		}
-		n.height = nodeHeight
 	}
-	// Origin uses the node's own widht and height to determine offsets.
-	originX := stringToPosition(l, n.OriginX, nodeWidth, false)
-	if oxs, ok := n.Element.(setters.OriginX); ok {
-		oxs.SetOriginX(originX)
-	}
-	originY := stringToPosition(l, n.OriginY, nodeHeight, true)
-	if oys, ok := n.Element.(setters.OriginY); ok {
-		oys.SetOriginY(originY)
-	}
-	if n.X != "" {
-		nodeX = stringToPosition(l, n.X, outerWidth, false)
-		if xs, ok := n.Element.(setters.X); ok {
-			xs.SetX(nodeX + originX)
+
+	if !skipWidth {
+		if n.Width != "" {
+			nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
+			if ws, ok := n.Element.(setters.Width); ok {
+				ws.SetWidth(nodeWidth)
+			}
+			n.width = nodeWidth
 		}
-		n.x = nodeX + originX
 	}
-	if n.Y != "" {
-		nodeY = stringToPosition(l, n.Y, outerHeight, true)
-		if ys, ok := n.Element.(setters.Y); ok {
-			ys.SetY(nodeY + originY)
+	if !skipHeight {
+		if n.Height != "" {
+			nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
+			if hs, ok := n.Element.(setters.Height); ok {
+				hs.SetHeight(nodeHeight)
+			}
+			n.height = nodeHeight
 		}
-		n.y = nodeY + originY
+	}
+
+	// Check if X has changed by comparing any user-set value to our stored node value.
+	var skipX bool
+	var skipY bool
+	if xg, ok := n.Element.(getters.X); ok {
+		if xg.GetX() != n.x {
+			skipX = true
+		}
+	}
+	if yg, ok := n.Element.(getters.Y); ok {
+		if yg.GetY() != n.y {
+			skipY = true
+		}
+	}
+
+	if !skipX {
+		// Origin uses the node's own width and height to determine offsets.
+		originX := stringToPosition(l, n.OriginX, nodeWidth, false)
+		if oxs, ok := n.Element.(setters.OriginX); ok {
+			oxs.SetOriginX(originX)
+		}
+		if n.X != "" {
+			nodeX = stringToPosition(l, n.X, outerWidth, false)
+			if xs, ok := n.Element.(setters.X); ok {
+				xs.SetX(nodeX + originX)
+			}
+			n.x = nodeX + originX
+		}
+	}
+	if !skipY {
+		originY := stringToPosition(l, n.OriginY, nodeHeight, true)
+		if oys, ok := n.Element.(setters.OriginY); ok {
+			oys.SetOriginY(originY)
+		}
+		if n.Y != "" {
+			nodeY = stringToPosition(l, n.Y, outerHeight, true)
+			if ys, ok := n.Element.(setters.Y); ok {
+				ys.SetY(nodeY + originY)
+			}
+			n.y = nodeY + originY
+		}
 	}
 }
 

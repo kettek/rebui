@@ -2,6 +2,7 @@ package rebui
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kettek/rebui/elements/getters"
 	"github.com/kettek/rebui/elements/receivers"
 	"github.com/kettek/rebui/elements/setters"
 )
@@ -41,8 +42,14 @@ type SetterImageScale = setters.ImageScale
 // SetterImage is an alias.
 type SetterImage = setters.Image
 
+// GetterX is an alias.
+type GetterX = getters.X
+
 // SetterX is an alias.
 type SetterX = setters.X
+
+// GetterY is an alias.
+type GetterY = getters.Y
 
 // SetterY is an alias.
 type SetterY = setters.Y

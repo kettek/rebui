@@ -24,7 +24,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return 320, 240
+	return outsideWidth, outsideHeight
 }
 
 func main() {
@@ -42,6 +42,7 @@ func main() {
 	g.layout.Generate()
 
 	ebiten.SetWindowSize(320, 240)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
 
 	if err := ebiten.RunGame(g); err != nil {
@@ -83,8 +84,14 @@ func (b *DraggableButton) HandlePointerGlobalMove(e rebui.EventPointerMove) {
 	if e.PointerID == -1 {
 		return
 	}
-	b.X += e.DX
-	b.Y += e.DY
+	if e.PointerID == 0 {
+		b.X += e.DX
+		b.Y += e.DY
+	}
+	if e.PointerID == 2 {
+		b.Width += e.DX
+		b.Height += e.DY
+	}
 }
 
 func init() {

@@ -16,9 +16,19 @@ func (b *Basic) SetWidth(w float64) {
 	b.Width = w
 }
 
+// GetWidth returns the width of the element.
+func (b *Basic) GetWidth() float64 {
+	return b.Width
+}
+
 // SetHeight sets the height of the element.
 func (b *Basic) SetHeight(h float64) {
 	b.Height = h
+}
+
+// GetHeight returns the height of the element.
+func (b *Basic) GetHeight() float64 {
+	return b.Height
 }
 
 // SetX sets the x position of the element.
@@ -26,9 +36,19 @@ func (b *Basic) SetX(x float64) {
 	b.X = x
 }
 
+// GetX returns the x position of the element.
+func (b *Basic) GetX() float64 {
+	return b.X
+}
+
 // SetY sets the y position of the element.
 func (b *Basic) SetY(y float64) {
 	b.Y = y
+}
+
+// GetY returns the y position of the element.
+func (b *Basic) GetY() float64 {
+	return b.Y
 }
 
 // SetOriginX sets the origin x position of the element.
