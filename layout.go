@@ -21,7 +21,7 @@ import (
 
 // Layout is used to control layout and manage evts.
 type Layout struct {
-	RenderTarget  *ebiten.Image
+	RenderWidget  *ebiten.Image
 	ClampPointers bool
 	generated     bool
 	Nodes         []*Node
@@ -93,8 +93,8 @@ func (l *Layout) AddNode(n Node) {
 }
 
 func (l *Layout) getCursor() (x, y int) {
-	if l.RenderTarget != nil {
-		w, h := l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
+	if l.RenderWidget != nil {
+		w, h := l.RenderWidget.Bounds().Dx(), l.RenderWidget.Bounds().Dy()
 		x, y = ebiten.CursorPosition()
 		x = int((float64(x) / float64(w)) * float64(w))
 		y = int((float64(y) / float64(h)) * float64(h))
@@ -106,8 +106,8 @@ func (l *Layout) getCursor() (x, y int) {
 
 func (l *Layout) getSize() (w, h int) {
 	w, h = ebiten.WindowSize()
-	if l.RenderTarget != nil {
-		w, h = l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
+	if l.RenderWidget != nil {
+		w, h = l.RenderWidget.Bounds().Dx(), l.RenderWidget.Bounds().Dy()
 	}
 	return
 }
@@ -254,7 +254,7 @@ func (l *Layout) Update() {
 				// Clear out any held releases.
 				for _, n := range l.Nodes {
 					if l.currentState.isPressed(n, evt.PointerID) {
-						evt.Target = n.Widget
+						evt.Widget = n.Widget
 						if gx, ok := n.Widget.(getters.X); ok {
 							evt.RelativeX = evt.X - gx.GetX()
 						}
@@ -273,7 +273,7 @@ func (l *Layout) Update() {
 			case events.PointerMove:
 				// Handle any global move handlers that were pressed.
 				for _, n := range l.Nodes {
-					evt.Target = n.Widget
+					evt.Widget = n.Widget
 					if gx, ok := n.Widget.(getters.X); ok {
 						evt.RelativeX = evt.X - gx.GetX()
 					}
@@ -296,7 +296,7 @@ func (l *Layout) Update() {
 
 // Draw draws the Nodes to the screen
 func (l *Layout) Draw(screen *ebiten.Image) {
-	l.RenderTarget = screen
+	l.RenderWidget = screen
 	if l.lastWidth != float64(screen.Bounds().Dx()) || l.lastHeight != float64(screen.Bounds().Dy()) {
 		l.lastWidth = float64(screen.Bounds().Dx())
 		l.lastHeight = float64(screen.Bounds().Dy())
@@ -457,7 +457,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 		switch evt := e.(type) {
 		case events.PointerMove:
 			if hit.Hit(evt.X, evt.Y) {
-				evt.Target = n.Widget
+				evt.Widget = n.Widget
 				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
 				}
@@ -472,7 +472,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				}
 				if !l.currentState.isHovered(n) {
 					pointerInEvent := events.PointerIn{
-						TargetWidget: events.TargetWidget{Target: n.Widget},
+						TargetWidget: events.TargetWidget{Widget: n.Widget},
 						Timestamp:    evt.Timestamp,
 						Pointer:      evt.Pointer,
 					}
@@ -487,7 +487,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			} else {
 				if l.currentState.isHovered(n) {
 					pointerOutEvent := events.PointerOut{
-						TargetWidget: events.TargetWidget{Target: n.Widget},
+						TargetWidget: events.TargetWidget{Widget: n.Widget},
 						Timestamp:    evt.Timestamp,
 						Pointer:      evt.Pointer,
 					}
@@ -502,7 +502,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		case events.PointerPress:
 			if hit.Hit(evt.X, evt.Y) {
-				evt.Target = n.Widget
+				evt.Widget = n.Widget
 				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
 				}
@@ -521,7 +521,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		case events.PointerRelease:
 			if hit.Hit(evt.X, evt.Y) {
-				evt.Target = n.Widget
+				evt.Widget = n.Widget
 				if gx, ok := n.Widget.(getters.X); ok {
 					evt.RelativeX = evt.X - gx.GetX()
 				}
@@ -537,7 +537,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				if l.currentState.isPressed(n, evt.PointerID) {
 					l.currentState.removePressed(n, evt.PointerID)
 					pointerPressedEvent := events.PointerPressed{
-						TargetWidget: events.TargetWidget{Target: n.Widget},
+						TargetWidget: events.TargetWidget{Widget: n.Widget},
 						Timestamp:    evt.Timestamp,
 						Pointer:      evt.Pointer,
 					}

@@ -9,5 +9,5 @@ type Widget interface {
 
 // TargetWidget is an event that has a target element.
 type TargetWidget struct {
-	Target Widget
+	Widget Widget
 }
