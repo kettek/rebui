@@ -9,7 +9,7 @@ import (
 )
 
 type Text struct {
-	rebui.BasicElement
+	Basic
 	text            string
 	face            text.Face
 	foregroundColor color.Color

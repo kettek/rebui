@@ -12,6 +12,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kettek/rebui/elements/receivers"
+	"github.com/kettek/rebui/elements/setters"
 	"github.com/kettek/rebui/events"
 	"github.com/kettek/rebui/style"
 )
@@ -259,7 +261,7 @@ func (l *Layout) Update() {
 						if n.OnPointerGlobalRelease != nil {
 							n.OnPointerGlobalRelease(&evt)
 						}
-						if hrelease, ok := n.Element.(GlobalReleaseReceiver); ok {
+						if hrelease, ok := n.Element.(receivers.PointerGlobalRelease); ok {
 							hrelease.HandlePointerGlobalRelease(&evt)
 						}
 					}
@@ -273,7 +275,7 @@ func (l *Layout) Update() {
 						if n.OnPointerGlobalMove != nil {
 							n.OnPointerGlobalMove(&evt)
 						}
-						if hmove, ok := n.Element.(GlobalMoveReceiver); ok {
+						if hmove, ok := n.Element.(receivers.PointerGlobalMove); ok {
 							hmove.HandlePointerGlobalMove(&evt)
 						}
 					}
@@ -302,39 +304,39 @@ func (l *Layout) generateNode(n *Node) {
 		if k == n.Type {
 			n.Element = reflect.New(reflect.TypeOf(h).Elem()).Interface().(Element)
 			// Call our setter interfaces if desired.
-			if bcs, ok := n.Element.(BackgroundColorSetter); ok {
+			if bcs, ok := n.Element.(setters.BackgroundColor); ok {
 				bcs.SetBackgroundColor(stringToColor(n.BackgroundColor, style.CurrentTheme().BackgroundColor))
 			}
-			if fcs, ok := n.Element.(ForegroundColorSetter); ok {
+			if fcs, ok := n.Element.(setters.ForegroundColor); ok {
 				fcs.SetForegroundColor(stringToColor(n.ForegroundColor, style.CurrentTheme().ForegroundColor))
 			}
-			if bcs, ok := n.Element.(BorderColorSetter); ok {
+			if bcs, ok := n.Element.(setters.BorderColor); ok {
 				bcs.SetBorderColor(stringToColor(n.BorderColor, style.CurrentTheme().BorderColor))
 			}
-			if vas, ok := n.Element.(VerticalAlignmentSetter); ok {
+			if vas, ok := n.Element.(setters.VerticalAlignment); ok {
 				vas.SetVerticalAlignment(n.VerticalAlign)
 			}
-			if has, ok := n.Element.(HorizontalAlignmentSetter); ok {
+			if has, ok := n.Element.(setters.HorizontalAlignment); ok {
 				has.SetHorizontalAlignment(n.HorizontalAlign)
 			}
-			if ts, ok := n.Element.(TextSetter); ok {
+			if ts, ok := n.Element.(setters.Text); ok {
 				ts.SetText(n.Text)
 			}
-			if fs, ok := n.Element.(FontFaceSetter); ok {
+			if fs, ok := n.Element.(setters.FontFace); ok {
 				fs.SetFontFace(style.CurrentTheme().FontFace)
 			}
 			if n.FontSize != "" {
-				if fs, ok := n.Element.(FontSizeSetter); ok {
+				if fs, ok := n.Element.(setters.FontSize); ok {
 					if ff, ok := style.CurrentTheme().FontFace.(*text.GoTextFace); ok {
 						size := stringToPosition(l, n.FontSize, ff.Size, true) // FIXME: This re-use is goofy, as it allows unintended at/after usage.
 						fs.SetFontSize(size)
 					}
 				}
 			}
-			if is, ok := n.Element.(ImageScaleSetter); ok {
+			if is, ok := n.Element.(setters.ImageScale); ok {
 				is.SetImageScale(n.ImageScale)
 			}
-			if is, ok := n.Element.(ImageSetter); ok {
+			if is, ok := n.Element.(setters.Image); ok {
 				if l.imageLoader != nil {
 					img, err := l.imageLoader(n.Image)
 					if err == nil {
@@ -361,37 +363,37 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	nodeY := 0.0
 	if n.Width != "" {
 		nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
-		if ws, ok := n.Element.(WidthSetter); ok {
+		if ws, ok := n.Element.(setters.Width); ok {
 			ws.SetWidth(nodeWidth)
 		}
 		n.width = nodeWidth
 	}
 	if n.Height != "" {
 		nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
-		if hs, ok := n.Element.(HeightSetter); ok {
+		if hs, ok := n.Element.(setters.Height); ok {
 			hs.SetHeight(nodeHeight)
 		}
 		n.height = nodeHeight
 	}
 	// Origin uses the node's own widht and height to determine offsets.
 	originX := stringToPosition(l, n.OriginX, nodeWidth, false)
-	if oxs, ok := n.Element.(OriginXSetter); ok {
+	if oxs, ok := n.Element.(setters.OriginX); ok {
 		oxs.SetOriginX(originX)
 	}
 	originY := stringToPosition(l, n.OriginY, nodeHeight, true)
-	if oys, ok := n.Element.(OriginYSetter); ok {
+	if oys, ok := n.Element.(setters.OriginY); ok {
 		oys.SetOriginY(originY)
 	}
 	if n.X != "" {
 		nodeX = stringToPosition(l, n.X, outerWidth, false)
-		if xs, ok := n.Element.(XSetter); ok {
+		if xs, ok := n.Element.(setters.X); ok {
 			xs.SetX(nodeX + originX)
 		}
 		n.x = nodeX + originX
 	}
 	if n.Y != "" {
 		nodeY = stringToPosition(l, n.Y, outerHeight, true)
-		if ys, ok := n.Element.(YSetter); ok {
+		if ys, ok := n.Element.(setters.Y); ok {
 			ys.SetY(nodeY + originY)
 		}
 		n.y = nodeY + originY
@@ -407,7 +409,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				if n.OnPointerMove != nil {
 					n.OnPointerMove(&evt)
 				}
-				if hmove, ok := n.Element.(PointerMoveReceiver); ok {
+				if hmove, ok := n.Element.(receivers.PointerMove); ok {
 					hmove.HandlePointerMove(&evt)
 				}
 				if !l.currentState.isHovered(n) {
@@ -419,7 +421,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 					if n.OnPointerIn != nil {
 						n.OnPointerIn(&pointerInEvent)
 					}
-					if hin, ok := n.Element.(PointerInReceiver); ok {
+					if hin, ok := n.Element.(receivers.PointerIn); ok {
 						hin.HandlePointerIn(&pointerInEvent)
 					}
 					l.currentState.addHovered(n)
@@ -434,7 +436,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 					if n.OnPointerOut != nil {
 						n.OnPointerOut(&pointerOutEvent)
 					}
-					if hout, ok := n.Element.(PointerOutReceiver); ok {
+					if hout, ok := n.Element.(receivers.PointerOut); ok {
 						hout.HandlePointerOut(&pointerOutEvent)
 					}
 					l.currentState.removeHovered(n)
@@ -446,7 +448,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				if n.OnPointerPress != nil {
 					n.OnPointerPress(&evt)
 				}
-				if hpress, ok := n.Element.(PressReceiver); ok {
+				if hpress, ok := n.Element.(receivers.PointerPress); ok {
 					hpress.HandlePointerPress(&evt)
 				}
 				if !l.currentState.isPressed(n, e.(events.PointerPress).PointerID) {
@@ -459,7 +461,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				if n.OnPointerRelease != nil {
 					n.OnPointerRelease(&evt)
 				}
-				if hrelease, ok := n.Element.(ReleaseReceiver); ok {
+				if hrelease, ok := n.Element.(receivers.PointerRelease); ok {
 					hrelease.HandlePointerRelease(&evt)
 				}
 				if l.currentState.isPressed(n, evt.PointerID) {
@@ -472,7 +474,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 					if n.OnPointerPressed != nil {
 						n.OnPointerPressed(&pointerPressedEvent)
 					}
-					if hpress, ok := n.Element.(PressedReceiver); ok {
+					if hpress, ok := n.Element.(receivers.PointerPressed); ok {
 						hpress.HandlePointerPressed(&pointerPressedEvent)
 					}
 				}

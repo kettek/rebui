@@ -10,7 +10,7 @@ import (
 )
 
 type Image struct {
-	rebui.BasicElement
+	Basic
 	scale       rebui.ImageScale
 	image       *ebiten.Image
 	valign      rebui.Alignment
