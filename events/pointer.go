@@ -2,9 +2,11 @@ package events
 
 // Pointer is an event that has pointer information.
 type Pointer struct {
-	X, Y      float64
-	DX, DY    float64
-	PointerID int
+	X, Y   float64
+	DX, DY float64
+	// These values are X and Y values relative to the interior of the event receiver, if applicable.
+	RelativeX, RelativeY float64
+	PointerID            int
 }
 
 // Cancelable is an event that can be canceled. This is the case for all events.

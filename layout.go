@@ -255,6 +255,12 @@ func (l *Layout) Update() {
 				for _, n := range l.Nodes {
 					if l.currentState.isPressed(n, evt.PointerID) {
 						evt.Target = n.Element
+						if gx, ok := n.Element.(getters.X); ok {
+							evt.RelativeX = evt.X - gx.GetX()
+						}
+						if gy, ok := n.Element.(getters.Y); ok {
+							evt.RelativeY = evt.Y - gy.GetY()
+						}
 						if n.OnPointerGlobalRelease != nil {
 							n.OnPointerGlobalRelease(&evt)
 						}
@@ -268,6 +274,12 @@ func (l *Layout) Update() {
 				// Handle any global move handlers that were pressed.
 				for _, n := range l.Nodes {
 					evt.Target = n.Element
+					if gx, ok := n.Element.(getters.X); ok {
+						evt.RelativeX = evt.X - gx.GetX()
+					}
+					if gy, ok := n.Element.(getters.Y); ok {
+						evt.RelativeY = evt.Y - gy.GetY()
+					}
 					if l.currentState.isPressed(n, evt.PointerID) {
 						if n.OnPointerGlobalMove != nil {
 							n.OnPointerGlobalMove(&evt)
@@ -446,6 +458,12 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 		case events.PointerMove:
 			if hit.Hit(evt.X, evt.Y) {
 				evt.Target = n.Element
+				if gx, ok := n.Element.(getters.X); ok {
+					evt.RelativeX = evt.X - gx.GetX()
+				}
+				if gy, ok := n.Element.(getters.Y); ok {
+					evt.RelativeY = evt.Y - gy.GetY()
+				}
 				if n.OnPointerMove != nil {
 					n.OnPointerMove(&evt)
 				}
@@ -485,6 +503,12 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 		case events.PointerPress:
 			if hit.Hit(evt.X, evt.Y) {
 				evt.Target = n.Element
+				if gx, ok := n.Element.(getters.X); ok {
+					evt.RelativeX = evt.X - gx.GetX()
+				}
+				if gy, ok := n.Element.(getters.Y); ok {
+					evt.RelativeY = evt.Y - gy.GetY()
+				}
 				if n.OnPointerPress != nil {
 					n.OnPointerPress(&evt)
 				}
@@ -498,6 +522,12 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 		case events.PointerRelease:
 			if hit.Hit(evt.X, evt.Y) {
 				evt.Target = n.Element
+				if gx, ok := n.Element.(getters.X); ok {
+					evt.RelativeX = evt.X - gx.GetX()
+				}
+				if gy, ok := n.Element.(getters.Y); ok {
+					evt.RelativeY = evt.Y - gy.GetY()
+				}
 				if n.OnPointerRelease != nil {
 					n.OnPointerRelease(&evt)
 				}
