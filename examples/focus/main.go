@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 
@@ -81,6 +82,14 @@ func (b *MyButton) HandleFocus(e rebui.EventFocus) {
 
 func (b *MyButton) HandleUnfocus(e rebui.EventUnfocus) {
 	b.SetBorderColor(color.NRGBA{255, 255, 255, 255})
+}
+
+func (b *MyButton) HandleKeyPress(e rebui.EventKeyPress) {
+	fmt.Println("got key press", e)
+}
+
+func (b *MyButton) HandleKeyRelease(e rebui.EventKeyRelease) {
+	fmt.Println("got key release", e)
 }
 
 func init() {

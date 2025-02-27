@@ -51,3 +51,13 @@ type Focus interface {
 type Unfocus interface {
 	HandleUnfocus(*events.Unfocus)
 }
+
+// KeyPress is used to receive key press events. Only the focused element will receive this event.
+type KeyPress interface {
+	HandleKeyPress(*events.KeyPress)
+}
+
+// KeyRelease is used to receive key release events. Only the focused element will receive this event.
+type KeyRelease interface {
+	HandleKeyRelease(*events.KeyRelease)
+}

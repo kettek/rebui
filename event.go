@@ -37,3 +37,9 @@ type EventFocus = *events.Focus
 
 // EventUnfocus is triggered when a widget has lost focus.
 type EventUnfocus = *events.Unfocus
+
+// EventKeyPress is used to receive key press events. Only the focused element will receive this event.
+type EventKeyPress = *events.KeyPress
+
+// EventKeyRelease is used to receive key release events. Only the focused element will receive this event.
+type EventKeyRelease = *events.KeyRelease

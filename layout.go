@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kettek/rebui/events"
 	"github.com/kettek/rebui/style"
@@ -30,6 +31,7 @@ type Layout struct {
 	//
 	imageLoader         func(string) (*ebiten.Image, error)
 	relayout            bool
+	pressedKeys         []key
 	pressedMouseButtons []mouse
 	activeTouches       []touch
 	focusedNode         *Node
@@ -37,6 +39,13 @@ type Layout struct {
 	lastMouseY          int
 	lastWidth           float64
 	lastHeight          float64
+}
+
+type key struct {
+	key   ebiten.Key
+	time  time.Time // When this key event was started.
+	next  time.Time // Next time to repeat this key.
+	count int
 }
 
 type mouse struct {
@@ -132,6 +141,7 @@ func (l *Layout) getSize() (w, h int) {
 func (l *Layout) getEvents() (evts []Event) {
 	evts = append(evts, l.getMouseEvents()...)
 	evts = append(evts, l.getTouchEvents()...)
+	evts = append(evts, l.getKeyEvents()...)
 	return
 }
 
@@ -360,6 +370,81 @@ func (l *Layout) getTouchEvents() (evts []Event) {
 	}
 
 	l.activeTouches = activeTouches
+
+	return
+}
+
+func (l *Layout) getKeyEvents() (evts []Event) {
+	ts := time.Now()
+
+	var pressedKeys []key
+	var releasedKeys []key
+	var newPressedKeys []key
+	var repeatKeys []key
+
+	for _, k := range inpututil.AppendPressedKeys(nil) {
+		pressedKeys = append(pressedKeys, key{key: k, time: ts, next: ts.Add(500 * time.Millisecond)})
+	}
+
+	for _, k := range l.pressedKeys {
+		exists := false
+		for _, k2 := range pressedKeys {
+			if k.key == k2.key {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			releasedKeys = append(releasedKeys, k)
+		}
+	}
+	for i, k := range pressedKeys {
+		exists := false
+		var prevKey key
+		for _, k2 := range l.pressedKeys {
+			if k.key == k2.key {
+				prevKey = k2
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			newPressedKeys = append(newPressedKeys, k)
+		} else {
+			if prevKey.next.Before(ts) {
+				repeatKeys = append(repeatKeys, key{
+					key:   prevKey.key,
+					time:  ts,
+					count: prevKey.count + 1,
+				})
+				prevKey.next = ts.Add(50 * time.Millisecond)
+				prevKey.count++
+			}
+			pressedKeys[i] = prevKey
+		}
+	}
+	for _, k := range newPressedKeys {
+		evts = append(evts, events.KeyPress{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Key:       events.Key{Key: k.key},
+		})
+	}
+	for _, k := range releasedKeys {
+		evts = append(evts, events.KeyRelease{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Key:       events.Key{Key: k.key},
+		})
+	}
+
+	for _, k := range repeatKeys {
+		evts = append(evts, events.KeyPress{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Key:       events.Key{Key: k.key},
+			Repeat:    k.count,
+		})
+	}
+
+	l.pressedKeys = pressedKeys
 
 	return
 }
@@ -773,6 +858,20 @@ func (l *Layout) processEvent(e Event) {
 				if hmove, ok := n.Widget.(receivers.PointerGlobalMove); ok {
 					hmove.HandlePointerGlobalMove(&evt)
 				}
+			}
+		}
+	case events.KeyPress:
+		if l.focusedNode != nil {
+			evt.Widget = l.focusedNode.Widget
+			if n, ok := l.focusedNode.Widget.(receivers.KeyPress); ok {
+				n.HandleKeyPress(&evt)
+			}
+		}
+	case events.KeyRelease:
+		if l.focusedNode != nil {
+			evt.Widget = l.focusedNode.Widget
+			if n, ok := l.focusedNode.Widget.(receivers.KeyRelease); ok {
+				n.HandleKeyRelease(&evt)
 			}
 		}
 	}
