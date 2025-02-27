@@ -32,6 +32,7 @@ type Layout struct {
 	relayout            bool
 	pressedMouseButtons []mouse
 	activeTouches       []touch
+	focusedNode         *Node
 	lastMouseX          int
 	lastMouseY          int
 	lastWidth           float64
@@ -382,6 +383,27 @@ func (l *Layout) Update() {
 				}
 			}
 			switch evt := e.(type) {
+			case events.PointerPress:
+				// Unfocus the current focused node if we have a press that does not hit it.
+				if l.focusedNode != nil {
+					if hit, ok := l.focusedNode.Widget.(HitChecker); ok {
+						if hit.Hit(evt.X, evt.Y) {
+							// We hit the focused node, so we don't need to do anything.
+							break
+						}
+						unfocusEvent := events.Unfocus{
+							TargetWidget: events.TargetWidget{Widget: l.focusedNode.Widget},
+							Timestamp:    events.Timestamp{Timestamp: time.Now()},
+						}
+						if l.focusedNode.OnUnfocus != nil {
+							l.focusedNode.OnUnfocus(&unfocusEvent)
+						}
+						if hunfocus, ok := l.focusedNode.Widget.(receivers.Unfocus); ok {
+							hunfocus.HandleUnfocus(&unfocusEvent)
+						}
+						l.focusedNode = nil
+					}
+				}
 			case events.PointerRelease:
 				pid := -1
 				if evt.TouchID > 0 { // I hope touches can't be 0...
@@ -678,6 +700,36 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 				}
 				if !l.currentState.isPressed(n, pid) {
 					l.currentState.addPressed(n, pid)
+				}
+				// Focus node on pointer press -- do we want to limit focused to only first or last node receiving a pointer press?
+				if l.focusedNode != nil && l.focusedNode != n {
+					unfocusEvent := events.Unfocus{
+						TargetWidget: events.TargetWidget{Widget: l.focusedNode.Widget},
+						Timestamp:    evt.Timestamp,
+					}
+					if l.focusedNode.OnUnfocus != nil {
+						l.focusedNode.OnUnfocus(&unfocusEvent)
+					}
+					if hunfocus, ok := l.focusedNode.Widget.(receivers.Unfocus); ok {
+						hunfocus.HandleUnfocus(&unfocusEvent)
+					}
+				}
+				if n.FocusIndex > 0 {
+					if l.focusedNode != n {
+						focusEvent := events.Focus{
+							TargetWidget: events.TargetWidget{Widget: evt.Widget},
+							Timestamp:    evt.Timestamp,
+						}
+						if n.OnFocus != nil {
+							n.OnFocus(&focusEvent)
+						}
+						if hfocus, ok := n.Widget.(receivers.Focus); ok {
+							hfocus.HandleFocus(&focusEvent)
+						}
+						l.focusedNode = n
+					}
+				} else {
+					l.focusedNode = nil
 				}
 			}
 		case events.PointerRelease:

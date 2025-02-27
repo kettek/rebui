@@ -41,3 +41,13 @@ type PointerGlobalRelease interface {
 type PointerPressed interface {
 	HandlePointerPressed(*events.PointerPressed)
 }
+
+// Focus is used to receive focus events. This occurs when a widget gains focus.
+type Focus interface {
+	HandleFocus(*events.Focus)
+}
+
+// Unfocus is used to receive unfocus events. This occurs when a widget loses focus.
+type Unfocus interface {
+	HandleUnfocus(*events.Unfocus)
+}

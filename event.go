@@ -31,3 +31,9 @@ type EventPointerRelease = *events.PointerRelease
 
 // EventPointerPressed is an event that is triggered when a pointer has depressed an element.
 type EventPointerPressed = *events.PointerPressed
+
+// EventFocus is triggered when a widget gains focus.
+type EventFocus = *events.Focus
+
+// EventUnfocus is triggered when a widget has lost focus.
+type EventUnfocus = *events.Unfocus
