@@ -123,6 +123,8 @@ func (b *MyInput) HandleKeyPress(e rebui.EventKeyPress) {
 			b.str = b.str[:len(b.str)-1]
 		}
 		b.SetText(b.str)
+	} else if e.Key.String() == "Enter" {
+		b.str += "\n"
 	}
 }
 

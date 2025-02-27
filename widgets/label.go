@@ -50,6 +50,7 @@ func (w *Label) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	if w.text != "" && w.face != nil {
 		txtOptions := &text.DrawOptions{}
 		txtOptions.GeoM.Concat(sop.GeoM)
+		txtOptions.LineSpacing = w.face.Metrics().HAscent + w.face.Metrics().HDescent // TODO: Check if this is actually correct.
 
 		switch w.halign {
 		case rebui.AlignCenter:
