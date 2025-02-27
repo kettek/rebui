@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kettek/rebui"
+	_ "github.com/kettek/rebui/defaults/font"
 	"github.com/kettek/rebui/widgets"
 )
 
@@ -31,16 +32,18 @@ func main() {
 	g := &Game{}
 
 	g.layout.AddNode(rebui.Node{
-		Type:        "MyButton",
-		ID:          "button1",
-		FocusIndex:  1,
-		Width:       "25%",
-		Height:      "25%",
-		X:           "50%",
-		Y:           "25%",
-		OriginX:     "-50%",
-		OriginY:     "-50%",
-		BorderColor: "white",
+		Type:            "MyButton",
+		ID:              "button1",
+		FocusIndex:      1,
+		Width:           "25%",
+		Height:          "25%",
+		X:               "50%",
+		Y:               "25%",
+		OriginX:         "-50%",
+		OriginY:         "-50%",
+		BorderColor:     "white",
+		VerticalAlign:   rebui.AlignMiddle,
+		HorizontalAlign: rebui.AlignCenter,
 	})
 
 	g.layout.AddNode(rebui.Node{
@@ -55,7 +58,7 @@ func main() {
 	})
 
 	g.layout.AddNode(rebui.Node{
-		Type:        "MyButton",
+		Type:        "MyInput",
 		FocusIndex:  1,
 		Width:       "25%",
 		Height:      "25%",
@@ -84,14 +87,46 @@ func (b *MyButton) HandleUnfocus(e rebui.EventUnfocus) {
 	b.SetBorderColor(color.NRGBA{255, 255, 255, 255})
 }
 
+func (b *MyButton) HandleKeyInput(e rebui.EventKeyInput) {
+	fmt.Println(e)
+}
+
 func (b *MyButton) HandleKeyPress(e rebui.EventKeyPress) {
-	fmt.Println("got key press", e)
+	b.SetText(e.Key.String() + " " + fmt.Sprintf("%d", e.Repeat))
 }
 
 func (b *MyButton) HandleKeyRelease(e rebui.EventKeyRelease) {
-	fmt.Println("got key release", e)
+	//
+}
+
+type MyInput struct {
+	widgets.Button
+	str string
+}
+
+func (b *MyInput) HandleFocus(e rebui.EventFocus) {
+	b.SetBorderColor(color.NRGBA{0, 255, 0, 255})
+}
+
+func (b *MyInput) HandleUnfocus(e rebui.EventUnfocus) {
+	b.SetBorderColor(color.NRGBA{255, 255, 255, 255})
+}
+
+func (b *MyInput) HandleKeyInput(e rebui.EventKeyInput) {
+	b.str += string(e.Rune)
+	b.SetText(b.str)
+}
+
+func (b *MyInput) HandleKeyPress(e rebui.EventKeyPress) {
+	if e.Key.String() == "Backspace" {
+		if len(b.str) > 0 {
+			b.str = b.str[:len(b.str)-1]
+		}
+		b.SetText(b.str)
+	}
 }
 
 func init() {
 	rebui.RegisterWidget("MyButton", &MyButton{})
+	rebui.RegisterWidget("MyInput", &MyInput{})
 }

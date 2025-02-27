@@ -43,3 +43,6 @@ type EventKeyPress = *events.KeyPress
 
 // EventKeyRelease is used to receive key release events. Only the focused element will receive this event.
 type EventKeyRelease = *events.KeyRelease
+
+// EventKeyInput is used to receive key input events. Only the focused element will receive this event.
+type EventKeyInput = *events.KeyInput

@@ -61,3 +61,8 @@ type KeyPress interface {
 type KeyRelease interface {
 	HandleKeyRelease(*events.KeyRelease)
 }
+
+// KeyInput is used to receive key input events. Only the focused element will receive this event.
+type KeyInput interface {
+	HandleKeyInput(*events.KeyInput)
+}

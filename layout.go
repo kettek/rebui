@@ -426,13 +426,13 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 	for _, k := range newPressedKeys {
 		evts = append(evts, events.KeyPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
-			Key:       events.Key{Key: k.key, Name: ebiten.KeyName(k.key)},
+			Key:       k.key,
 		})
 	}
 	for _, k := range releasedKeys {
 		evts = append(evts, events.KeyRelease{
 			Timestamp: events.Timestamp{Timestamp: ts},
-			Key:       events.Key{Key: k.key, Name: ebiten.KeyName(k.key)},
+			Key:       k.key,
 			Duration:  events.Duration{Duration: ts.Sub(k.time)},
 		})
 	}
@@ -440,8 +440,16 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 	for _, k := range repeatKeys {
 		evts = append(evts, events.KeyPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
-			Key:       events.Key{Key: k.key, Name: ebiten.KeyName(k.key)},
+			Key:       k.key,
 			Repeat:    k.count,
+		})
+	}
+
+	// Also handle input chars. AFAIK we shouldn't handle the whole key press logic with input chars.
+	for _, k := range ebiten.AppendInputChars(nil) {
+		evts = append(evts, events.KeyInput{
+			Timestamp: events.Timestamp{Timestamp: ts},
+			Rune:      k,
 		})
 	}
 
@@ -873,6 +881,13 @@ func (l *Layout) processEvent(e Event) {
 			evt.Widget = l.focusedNode.Widget
 			if n, ok := l.focusedNode.Widget.(receivers.KeyRelease); ok {
 				n.HandleKeyRelease(&evt)
+			}
+		}
+	case events.KeyInput:
+		if l.focusedNode != nil {
+			evt.Widget = l.focusedNode.Widget
+			if n, ok := l.focusedNode.Widget.(receivers.KeyInput); ok {
+				n.HandleKeyInput(&evt)
 			}
 		}
 	}
