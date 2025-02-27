@@ -426,20 +426,20 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 	for _, k := range newPressedKeys {
 		evts = append(evts, events.KeyPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
-			Key:       events.Key{Key: k.key},
+			Key:       events.Key{Key: k.key, Name: ebiten.KeyName(k.key)},
 		})
 	}
 	for _, k := range releasedKeys {
 		evts = append(evts, events.KeyRelease{
 			Timestamp: events.Timestamp{Timestamp: ts},
-			Key:       events.Key{Key: k.key},
+			Key:       events.Key{Key: k.key, Name: ebiten.KeyName(k.key)},
 		})
 	}
 
 	for _, k := range repeatKeys {
 		evts = append(evts, events.KeyPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
-			Key:       events.Key{Key: k.key},
+			Key:       events.Key{Key: k.key, Name: ebiten.KeyName(k.key)},
 			Repeat:    k.count,
 		})
 	}

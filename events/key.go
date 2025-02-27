@@ -7,7 +7,7 @@ import (
 // Key is the base struct for KeyPress and KeyRelease
 type Key struct {
 	Key  ebiten.Key
-	Rune rune // ???
+	Name string
 }
 
 // KeyPress is an event that is triggered when a key is pressed.
