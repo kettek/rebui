@@ -382,80 +382,7 @@ func (l *Layout) Update() {
 					break
 				}
 			}
-			switch evt := e.(type) {
-			case events.PointerPress:
-				// Unfocus the current focused node if we have a press that does not hit it.
-				if l.focusedNode != nil {
-					if hit, ok := l.focusedNode.Widget.(HitChecker); ok {
-						if hit.Hit(evt.X, evt.Y) {
-							// We hit the focused node, so we don't need to do anything.
-							break
-						}
-						unfocusEvent := events.Unfocus{
-							TargetWidget: events.TargetWidget{Widget: l.focusedNode.Widget},
-							Timestamp:    events.Timestamp{Timestamp: time.Now()},
-						}
-						if l.focusedNode.OnUnfocus != nil {
-							l.focusedNode.OnUnfocus(&unfocusEvent)
-						}
-						if hunfocus, ok := l.focusedNode.Widget.(receivers.Unfocus); ok {
-							hunfocus.HandleUnfocus(&unfocusEvent)
-						}
-						l.focusedNode = nil
-					}
-				}
-			case events.PointerRelease:
-				pid := -1
-				if evt.TouchID > 0 { // I hope touches can't be 0...
-					pid = evt.TouchID
-				} else {
-					pid = evt.ButtonID
-				}
-				// Clear out any held releases.
-				for _, n := range l.Nodes {
-					if l.currentState.isPressed(n, pid) {
-						evt.Widget = n.Widget
-						if gx, ok := n.Widget.(getters.X); ok {
-							evt.RelativeX = evt.X - gx.GetX()
-						}
-						if gy, ok := n.Widget.(getters.Y); ok {
-							evt.RelativeY = evt.Y - gy.GetY()
-						}
-						if n.OnPointerGlobalRelease != nil {
-							n.OnPointerGlobalRelease(&evt)
-						}
-						if hrelease, ok := n.Widget.(receivers.PointerGlobalRelease); ok {
-							hrelease.HandlePointerGlobalRelease(&evt)
-						}
-					}
-				}
-				l.currentState.removePressedID(pid)
-			case events.PointerMove:
-				pid := -1
-				if evt.TouchID > 0 { // I hope touches can't be 0...
-					pid = evt.TouchID
-				} else {
-					pid = evt.ButtonID
-				}
-				// Handle any global move handlers that were pressed.
-				for _, n := range l.Nodes {
-					evt.Widget = n.Widget
-					if gx, ok := n.Widget.(getters.X); ok {
-						evt.RelativeX = evt.X - gx.GetX()
-					}
-					if gy, ok := n.Widget.(getters.Y); ok {
-						evt.RelativeY = evt.Y - gy.GetY()
-					}
-					if l.currentState.isPressed(n, pid) {
-						if n.OnPointerGlobalMove != nil {
-							n.OnPointerGlobalMove(&evt)
-						}
-						if hmove, ok := n.Widget.(receivers.PointerGlobalMove); ok {
-							hmove.HandlePointerGlobalMove(&evt)
-						}
-					}
-				}
-			}
+			l.processEvent(e)
 		}
 	}
 }
@@ -771,6 +698,85 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 			}
 		}
 	}
+}
+
+// processEvent is called after processNodeEvent and does any further handling beyond what the nodes can handle.
+func (l *Layout) processEvent(e Event) {
+	switch evt := e.(type) {
+	case events.PointerPress:
+		// Unfocus the current focused node if we have a press that does not hit it.
+		if l.focusedNode != nil {
+			if hit, ok := l.focusedNode.Widget.(HitChecker); ok {
+				if hit.Hit(evt.X, evt.Y) {
+					// We hit the focused node, so we don't need to do anything.
+					break
+				}
+				unfocusEvent := events.Unfocus{
+					TargetWidget: events.TargetWidget{Widget: l.focusedNode.Widget},
+					Timestamp:    events.Timestamp{Timestamp: time.Now()},
+				}
+				if l.focusedNode.OnUnfocus != nil {
+					l.focusedNode.OnUnfocus(&unfocusEvent)
+				}
+				if hunfocus, ok := l.focusedNode.Widget.(receivers.Unfocus); ok {
+					hunfocus.HandleUnfocus(&unfocusEvent)
+				}
+				l.focusedNode = nil
+			}
+		}
+	case events.PointerRelease:
+		pid := -1
+		if evt.TouchID > 0 { // I hope touches can't be 0...
+			pid = evt.TouchID
+		} else {
+			pid = evt.ButtonID
+		}
+		// Clear out any held releases.
+		for _, n := range l.Nodes {
+			if l.currentState.isPressed(n, pid) {
+				evt.Widget = n.Widget
+				if gx, ok := n.Widget.(getters.X); ok {
+					evt.RelativeX = evt.X - gx.GetX()
+				}
+				if gy, ok := n.Widget.(getters.Y); ok {
+					evt.RelativeY = evt.Y - gy.GetY()
+				}
+				if n.OnPointerGlobalRelease != nil {
+					n.OnPointerGlobalRelease(&evt)
+				}
+				if hrelease, ok := n.Widget.(receivers.PointerGlobalRelease); ok {
+					hrelease.HandlePointerGlobalRelease(&evt)
+				}
+			}
+		}
+		l.currentState.removePressedID(pid)
+	case events.PointerMove:
+		pid := -1
+		if evt.TouchID > 0 { // I hope touches can't be 0...
+			pid = evt.TouchID
+		} else {
+			pid = evt.ButtonID
+		}
+		// Handle any global move handlers that were pressed.
+		for _, n := range l.Nodes {
+			evt.Widget = n.Widget
+			if gx, ok := n.Widget.(getters.X); ok {
+				evt.RelativeX = evt.X - gx.GetX()
+			}
+			if gy, ok := n.Widget.(getters.Y); ok {
+				evt.RelativeY = evt.Y - gy.GetY()
+			}
+			if l.currentState.isPressed(n, pid) {
+				if n.OnPointerGlobalMove != nil {
+					n.OnPointerGlobalMove(&evt)
+				}
+				if hmove, ok := n.Widget.(receivers.PointerGlobalMove); ok {
+					hmove.HandlePointerGlobalMove(&evt)
+				}
+			}
+		}
+	}
+
 }
 
 func stringToColor(s string, fallback color.Color) color.Color {
