@@ -433,6 +433,7 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 		evts = append(evts, events.KeyRelease{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Key:       events.Key{Key: k.key, Name: ebiten.KeyName(k.key)},
+			Duration:  events.Duration{Duration: ts.Sub(k.time)},
 		})
 	}
 

@@ -14,8 +14,8 @@ type Key struct {
 type KeyPress struct {
 	Cancelable
 	TargetWidget // TargetWidget will be set to the current focused widget
-	Key
 	Timestamp
+	Key
 	Repeat int
 }
 
@@ -23,6 +23,7 @@ type KeyPress struct {
 type KeyRelease struct {
 	Cancelable
 	TargetWidget // TargetWidget will be set to the current focused widget
-	Key
 	Timestamp
+	Duration // How long this move event has been happening.
+	Key
 }
