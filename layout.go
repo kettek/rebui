@@ -872,6 +872,12 @@ func (l *Layout) processEvent(e Event) {
 	case events.KeyPress:
 		if l.focusedNode != nil {
 			evt.Widget = l.focusedNode.Widget
+			if l.focusedNode.OnKeyPress != nil {
+				l.focusedNode.OnKeyPress(&evt)
+			}
+			if evt.Canceled() {
+				break
+			}
 			if n, ok := l.focusedNode.Widget.(receivers.KeyPress); ok {
 				n.HandleKeyPress(&evt)
 			}
@@ -879,6 +885,12 @@ func (l *Layout) processEvent(e Event) {
 	case events.KeyRelease:
 		if l.focusedNode != nil {
 			evt.Widget = l.focusedNode.Widget
+			if l.focusedNode.OnKeyRelease != nil {
+				l.focusedNode.OnKeyRelease(&evt)
+			}
+			if evt.Canceled() {
+				break
+			}
 			if n, ok := l.focusedNode.Widget.(receivers.KeyRelease); ok {
 				n.HandleKeyRelease(&evt)
 			}
@@ -886,6 +898,12 @@ func (l *Layout) processEvent(e Event) {
 	case events.KeyInput:
 		if l.focusedNode != nil {
 			evt.Widget = l.focusedNode.Widget
+			if l.focusedNode.OnKeyInput != nil {
+				l.focusedNode.OnKeyInput(&evt)
+			}
+			if evt.Canceled() {
+				break
+			}
 			if n, ok := l.focusedNode.Widget.(receivers.KeyInput); ok {
 				n.HandleKeyInput(&evt)
 			}

@@ -39,6 +39,9 @@ type nodeHooks struct {
 	OnPointerGlobalMove    func(EventPointerMove)
 	OnFocus                func(EventFocus)
 	OnUnfocus              func(EventUnfocus)
+	OnKeyPress             func(EventKeyPress)
+	OnKeyRelease           func(EventKeyRelease)
+	OnKeyInput             func(EventKeyInput)
 }
 
 // pressedNode is a convenience struct that corresponds a given node with a pointer ID.
