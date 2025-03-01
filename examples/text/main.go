@@ -23,7 +23,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return 320, 240
+	return outsideWidth, outsideHeight
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 
 	g.layout.AddNode(rebui.Node{
 		Type:            "Text",
-		Width:           "100",
+		Width:           "50%",
 		Height:          "50%",
 		X:               "50%",
 		Y:               "50%",
@@ -41,9 +41,11 @@ func main() {
 		BackgroundColor: "red",
 		Text:            "This is some text! Wowwwwwwwwwwwwwwwwwwww, and it should have word wrap too, I think!, MAYBE!!!\nor maybe not?\nit does!!!",
 		TextWrap:        rebui.WrapWord,
+		HorizontalAlign: rebui.AlignCenter,
 	})
 
 	ebiten.SetWindowSize(320, 240)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
 
 	if err := ebiten.RunGame(g); err != nil {

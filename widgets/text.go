@@ -56,7 +56,6 @@ func (w *Text) SetVerticalAlignment(align rebui.Alignment) {
 }
 
 func (w *Text) SetHorizontalAlignment(align rebui.Alignment) {
-	fmt.Println("Text: Horizontal Alignment not implemented yet.")
 	w.halign = align
 }
 
@@ -80,19 +79,79 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	w.Layout() // for now.
 	tx, ty := 0.0, 0.0
 	lineH := w.face.Metrics().HAscent + w.face.Metrics().HDescent
-	for _, block := range w.blocks {
+
+	for i := 0; i < len(w.blocks); i++ {
+		block := w.blocks[i]
+
 		if _, ok := block.(blocks.Break); ok {
 			ty += lineH
 			tx = 0
 			continue
-		} else if block, ok := block.(blocks.Text); ok {
-			txtOptions := &text.DrawOptions{}
-			txtOptions.GeoM.Concat(sop.GeoM)
-			txtOptions.GeoM.Translate(tx, ty)
+		}
+		if w.halign == rebui.AlignCenter {
+			// Collect blocks until break.
+			var subBlocks []blocks.Block
+			for j := i; j < len(w.blocks); j++ {
+				if _, ok := w.blocks[j].(blocks.Break); ok {
+					break
+				}
+				subBlocks = append(subBlocks, w.blocks[j])
+			}
+			i += len(subBlocks)
+			// Get their collective widths.
+			var totalWidth float64
+			for _, b := range subBlocks {
+				if b, ok := b.(blocks.Text); ok {
+					totalWidth += b.Width
+				}
+			}
+			// Center them.
+			tx = (w.Width - totalWidth) / 2
+			// And draw.
+			for _, b := range subBlocks {
+				if block, ok := b.(blocks.Text); ok {
+					txtOptions := &text.DrawOptions{}
+					txtOptions.GeoM.Concat(sop.GeoM)
+					txtOptions.GeoM.Translate(tx, ty)
 
-			text.Draw(screen, block.Text, w.face, txtOptions)
+					text.Draw(screen, block.Text, w.face, txtOptions)
 
-			tx += block.Width
+					tx += block.Width
+				}
+			}
+			ty += lineH
+		} else if w.halign == rebui.AlignRight {
+			tx = w.Width
+			// Find position of next break.
+			var breakPos int
+			for j := i; j < len(w.blocks); j++ {
+				if _, ok := w.blocks[j].(blocks.Break); ok {
+					breakPos = j
+					break
+				}
+			}
+			// Draw blocks in reverse from breakPos to i.
+			for j := breakPos - 1; j >= i; j-- {
+				block := w.blocks[j]
+				if textBlock, ok := block.(blocks.Text); ok {
+					tx -= textBlock.Width
+					txtOptions := &text.DrawOptions{}
+					txtOptions.GeoM.Concat(sop.GeoM)
+					txtOptions.GeoM.Translate(tx, ty)
+
+					text.Draw(screen, textBlock.Text, w.face, txtOptions)
+				}
+			}
+		} else {
+			if textBlock, ok := block.(blocks.Text); ok {
+				txtOptions := &text.DrawOptions{}
+				txtOptions.GeoM.Concat(sop.GeoM)
+				txtOptions.GeoM.Translate(tx, ty)
+
+				text.Draw(screen, textBlock.Text, w.face, txtOptions)
+
+				tx += textBlock.Width
+			}
 		}
 	}
 
