@@ -134,7 +134,7 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 		} else if w.halign == rebui.AlignRight {
 			tx = w.Width
 			// Find position of next break.
-			var breakPos int
+			breakPos := len(w.blocks)
 			for j := i; j < len(w.blocks); j++ {
 				if _, ok := w.blocks[j].(blocks.Break); ok {
 					breakPos = j
