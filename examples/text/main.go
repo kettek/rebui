@@ -42,6 +42,7 @@ func main() {
 		Text:            "This is some text! Wowwwwwwwwwwwwwwwwwwww, and it should have word wrap too, I think!, MAYBE!!!\nor maybe not?\nit does!!!",
 		TextWrap:        rebui.WrapWord,
 		HorizontalAlign: rebui.AlignCenter,
+		VerticalAlign:   rebui.AlignMiddle,
 	})
 
 	ebiten.SetWindowSize(320, 240)

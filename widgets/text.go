@@ -1,7 +1,6 @@
 package widgets
 
 import (
-	"fmt"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -51,7 +50,6 @@ func (w *Text) SetForegroundColor(clr color.Color) {
 }
 
 func (w *Text) SetVerticalAlignment(align rebui.Alignment) {
-	fmt.Println("Text: Vertical Alignment not implemented yet.")
 	w.valign = align
 }
 
@@ -79,6 +77,19 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	w.Layout() // for now.
 	tx, ty := 0.0, 0.0
 	lineH := w.face.Metrics().HAscent + w.face.Metrics().HDescent
+
+	oy := 0.0
+	if w.valign == rebui.AlignMiddle {
+		_, oy = blocks.GetSize(w.blocks, blocks.Config{
+			Face: w.face,
+		})
+		oy = (w.Height - oy) / 2
+	} else if w.valign == rebui.AlignBottom {
+		_, oy = blocks.GetSize(w.blocks, blocks.Config{
+			Face: w.face,
+		})
+		oy = w.Height - oy
+	}
 
 	for i := 0; i < len(w.blocks); i++ {
 		block := w.blocks[i]
@@ -112,7 +123,7 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 				if block, ok := b.(blocks.Text); ok {
 					txtOptions := &text.DrawOptions{}
 					txtOptions.GeoM.Concat(sop.GeoM)
-					txtOptions.GeoM.Translate(tx, ty)
+					txtOptions.GeoM.Translate(tx, ty+oy)
 
 					text.Draw(screen, block.Text, w.face, txtOptions)
 
@@ -137,7 +148,7 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 					tx -= textBlock.Width
 					txtOptions := &text.DrawOptions{}
 					txtOptions.GeoM.Concat(sop.GeoM)
-					txtOptions.GeoM.Translate(tx, ty)
+					txtOptions.GeoM.Translate(tx, ty+oy)
 
 					text.Draw(screen, textBlock.Text, w.face, txtOptions)
 				}
@@ -146,7 +157,7 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 			if textBlock, ok := block.(blocks.Text); ok {
 				txtOptions := &text.DrawOptions{}
 				txtOptions.GeoM.Concat(sop.GeoM)
-				txtOptions.GeoM.Translate(tx, ty)
+				txtOptions.GeoM.Translate(tx, ty+oy)
 
 				text.Draw(screen, textBlock.Text, w.face, txtOptions)
 
