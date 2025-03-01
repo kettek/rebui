@@ -15,6 +15,16 @@ const (
 	AlignBottom = style.Bottom
 )
 
+// Wrap is a type alias for style.Wrap.
+type Wrap = style.Wrap
+
+// Our wrapping types. See style package for more info.
+const (
+	WrapNone = style.NoWrap
+	WrapWord = style.Word
+	WrapRune = style.Rune
+)
+
 // ImageScale is a type alias for style.ImageScale.
 type ImageScale = style.ImageScale
 

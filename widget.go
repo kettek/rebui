@@ -30,6 +30,9 @@ type SetterHorizontalAlignment = setters.HorizontalAlignment
 // SetterText is an alias.
 type SetterText = setters.Text
 
+// SetterTextWrap is an alias.
+type SetterTextWrap = setters.TextWrap
+
 // SetterFontFace is an alias.
 type SetterFontFace = setters.FontFace
 

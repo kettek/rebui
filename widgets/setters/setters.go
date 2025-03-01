@@ -38,6 +38,11 @@ type Text interface {
 	SetText(string)
 }
 
+// TextWrap is used to set the text wrap of the given element.
+type TextWrap interface {
+	SetTextWrap(style.Wrap)
+}
+
 // FontFace is used to set the font face that the given element should use. This is generally derived from Theme, but may be overridden.
 type FontFace interface {
 	SetFontFace(text.Face)

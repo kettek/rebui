@@ -13,6 +13,16 @@ const (
 	Bottom Alignment = "bottom"
 )
 
+// Wrap is used to determine how text is word wrapped.
+type Wrap string
+
+// Our various wrapping.
+const (
+	NoWrap Wrap = "nowrap"
+	Word   Wrap = "word"
+	Rune   Wrap = "rune"
+)
+
 // ImageScale is used to determine how images scale within their element.
 type ImageScale string
 

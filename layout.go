@@ -535,6 +535,9 @@ func (l *Layout) generateNode(n *Node) {
 			if ts, ok := n.Widget.(setters.Text); ok {
 				ts.SetText(n.Text)
 			}
+			if tws, ok := n.Widget.(setters.TextWrap); ok {
+				tws.SetTextWrap(n.TextWrap)
+			}
 			if fs, ok := n.Widget.(setters.FontFace); ok {
 				fs.SetFontFace(style.CurrentTheme().FontFace)
 			}
