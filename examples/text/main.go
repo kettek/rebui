@@ -48,7 +48,7 @@ func main() {
 		VerticalAlign:   rebui.AlignMiddle,
 	})
 
-	ebiten.SetWindowSize(320, 240)
+	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
 
@@ -63,7 +63,7 @@ func (g *Game) setupButtons() {
 		Type:   "Button",
 		ID:     "button1",
 		Width:  "25%",
-		Height: "30",
+		Height: "20",
 		Text:   "Left",
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
@@ -73,7 +73,7 @@ func (g *Game) setupButtons() {
 		Type:            "Button",
 		ID:              "button2",
 		Width:           "25%",
-		Height:          "30",
+		Height:          "20",
 		X:               "after button1",
 		Text:            "Center",
 		HorizontalAlign: rebui.AlignCenter,
@@ -85,7 +85,7 @@ func (g *Game) setupButtons() {
 		Type:            "Button",
 		ID:              "button3",
 		Width:           "25%",
-		Height:          "30",
+		Height:          "20",
 		X:               "after button2",
 		Text:            "Right",
 		HorizontalAlign: rebui.AlignRight,
@@ -97,7 +97,7 @@ func (g *Game) setupButtons() {
 		Type:   "Button",
 		ID:     "button4",
 		Width:  "25%",
-		Height: "30",
+		Height: "20",
 		Y:      "after button1",
 		Text:   "Top",
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
@@ -108,7 +108,7 @@ func (g *Game) setupButtons() {
 		Type:          "Button",
 		ID:            "button5",
 		Width:         "25%",
-		Height:        "30",
+		Height:        "20",
 		X:             "after button4",
 		Y:             "after button2",
 		Text:          "Middle",
@@ -121,7 +121,7 @@ func (g *Game) setupButtons() {
 		Type:          "Button",
 		ID:            "button6",
 		Width:         "25%",
-		Height:        "30",
+		Height:        "20",
 		X:             "after button5",
 		Y:             "after button3",
 		Text:          "Bottom",
@@ -129,5 +129,40 @@ func (g *Game) setupButtons() {
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
 		txt.SetVerticalAlignment(rebui.AlignBottom)
+	}
+	g.layout.AddNode(rebui.Node{
+		Type:   "Button",
+		ID:     "button7",
+		Width:  "25%",
+		Height: "20",
+		Y:      "after button4",
+		Text:   "Wrap",
+	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
+		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
+		txt.SetTextWrap(rebui.WrapWord)
+	}
+	g.layout.AddNode(rebui.Node{
+		Type:   "Button",
+		ID:     "button8",
+		Width:  "25%",
+		Height: "20",
+		X:      "after button7",
+		Y:      "after button5",
+		Text:   "Rune",
+	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
+		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
+		txt.SetTextWrap(rebui.WrapRune)
+	}
+	g.layout.AddNode(rebui.Node{
+		Type:   "Button",
+		ID:     "button9",
+		Width:  "25%",
+		Height: "20",
+		X:      "after button8",
+		Y:      "after button6",
+		Text:   "None",
+	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
+		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
+		txt.SetTextWrap(rebui.WrapNone)
 	}
 }
