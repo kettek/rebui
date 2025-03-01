@@ -8,11 +8,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/kettek/rebui"
+	"github.com/kettek/rebui/blocks"
 )
 
 type Text struct {
 	Basic
-	blocks          []textBlock
+	blocks          []blocks.Block
 	wrap            rebui.Wrap
 	text            string
 	face            text.Face
@@ -20,12 +21,6 @@ type Text struct {
 	borderColor     color.Color
 	valign          rebui.Alignment
 	halign          rebui.Alignment
-}
-
-type textBlock struct {
-	text   string
-	breaks bool
-	width  float64
 }
 
 func (w *Text) SetBorderColor(clr color.Color) {
@@ -37,72 +32,14 @@ func (w *Text) SetTextWrap(wrap rebui.Wrap) {
 }
 
 func (w *Text) Layout() {
-	w.blocks = nil
-
-	var blocks []textBlock
-
-	var currentBlock textBlock
-	var currentWidth float64
-	for _, r := range w.text {
-		if r == '\n' {
-			currentBlock.width, _ = text.Measure(currentBlock.text, w.face, 0)
-			blocks = append(blocks, currentBlock)
-			blocks = append(blocks, textBlock{breaks: true})
-			currentBlock = textBlock{}
-			currentWidth = 0
-			continue
-		}
-		currentBlock.text += string(r)
-		if w.wrap == rebui.WrapNone {
-			continue
-		}
-		width, _ := text.Measure(currentBlock.text, w.face, 0)
-		if currentWidth+width >= w.Width {
-			if w.wrap == rebui.WrapWord {
-				// Find our last previous space, if possible.
-				didit := false
-				for i := len(currentBlock.text) - 1; i >= 0; i-- {
-					if currentBlock.text[i] == ' ' {
-						txt := currentBlock.text
-						currentBlock.width, _ = text.Measure(currentBlock.text[:i], w.face, 0)
-						currentBlock.text = txt[:i]
-						blocks = append(blocks, currentBlock)
-						blocks = append(blocks, textBlock{breaks: true})
-						currentBlock = textBlock{text: txt[i+1:]}
-						didit = true
-						break
-					}
-				}
-				// WrapRune when if we fail.
-				if !didit {
-					blocks, currentBlock = w.genToPreviousRune(blocks, currentBlock)
-				}
-			} else if w.wrap == rebui.WrapRune {
-				blocks, currentBlock = w.genToPreviousRune(blocks, currentBlock)
-			}
-		}
-	}
-	// Add last blockie.
-	currentBlock.width, _ = text.Measure(currentBlock.text, w.face, 0)
-	blocks = append(blocks, currentBlock)
-
-	w.blocks = blocks
-}
-
-func (w *Text) genToPreviousRune(blocks []textBlock, currentBlock textBlock) ([]textBlock, textBlock) {
-	for i := len(currentBlock.text) - 1; i >= 0; i-- {
-		width, _ := text.Measure(currentBlock.text[:i], w.face, 0)
-		if width < w.Width {
-			txt := currentBlock.text
-			currentBlock.width = width
-			currentBlock.text = txt[:i]
-			blocks = append(blocks, currentBlock)
-			blocks = append(blocks, textBlock{breaks: true})
-			currentBlock = textBlock{text: txt[i:]}
-			break
-		}
-	}
-	return blocks, currentBlock
+	w.blocks = blocks.FromText(w.text, blocks.Config{
+		Face:   w.face,
+		Width:  w.Width,
+		Height: w.Height,
+		Wrap:   w.wrap,
+		VAlign: w.valign,
+		HAlign: w.halign,
+	})
 }
 
 func (w *Text) SetText(text string) {
@@ -144,18 +81,19 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	tx, ty := 0.0, 0.0
 	lineH := w.face.Metrics().HAscent + w.face.Metrics().HDescent
 	for _, block := range w.blocks {
-		if block.breaks {
+		if _, ok := block.(blocks.Break); ok {
 			ty += lineH
 			tx = 0
 			continue
+		} else if block, ok := block.(blocks.Text); ok {
+			txtOptions := &text.DrawOptions{}
+			txtOptions.GeoM.Concat(sop.GeoM)
+			txtOptions.GeoM.Translate(tx, ty)
+
+			text.Draw(screen, block.Text, w.face, txtOptions)
+
+			tx += block.Width
 		}
-		txtOptions := &text.DrawOptions{}
-		txtOptions.GeoM.Concat(sop.GeoM)
-		txtOptions.GeoM.Translate(tx, ty)
-
-		text.Draw(screen, block.text, w.face, txtOptions)
-
-		tx += block.width
 	}
 
 	if w.borderColor != nil {
