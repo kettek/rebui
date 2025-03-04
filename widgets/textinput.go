@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/kettek/rebui"
+	"github.com/kettek/rebui/clipboard"
 )
 
 type TextInput struct {
@@ -28,6 +29,7 @@ type TextInput struct {
 	OnSubmit        func(string)
 	lastTime        time.Time
 	cursorHidden    bool
+	controlHeld     bool // TODO: Move this to be as part of KeyEvent system.
 }
 
 func (w *TextInput) SetWidth(width float64) {
@@ -46,8 +48,8 @@ func (w *TextInput) SetText(text string) {
 	w.selectStart = 0
 	w.selectEnd = 0
 	w.Label.SetText(text)
-	if w.cursor > len(w.text) {
-		w.cursor = len(w.text)
+	if w.cursor > len(text) {
+		w.cursor = len(text)
 	}
 	if w.OnChange != nil {
 		w.OnChange(text)
@@ -195,6 +197,9 @@ func (w *TextInput) HandlePointerGlobalMove(evt rebui.EventPointerMove) {
 }
 
 func (w *TextInput) HandleKeyInput(evt rebui.EventKeyInput) {
+	if w.controlHeld && (evt.Rune == 'v' || evt.Rune == 'c' || evt.Rune == 'a') {
+		return
+	}
 	if w.selectStart != w.selectEnd {
 		var text string
 		if w.selectStart == 0 {
@@ -274,6 +279,26 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 		if w.OnSubmit != nil {
 			w.OnSubmit(w.text)
 		}
+	} else if evt.Key == ebiten.KeyControl {
+		w.controlHeld = true
+	} else if evt.Key == ebiten.KeyC && w.controlHeld {
+		if w.selectStart != w.selectEnd {
+			clipboard.SetText(w.text[w.selectStart:w.selectEnd])
+		}
+	} else if evt.Key == ebiten.KeyV && w.controlHeld {
+		text := w.text[:w.cursor] + clipboard.GetText() + w.text[w.cursor:]
+		w.cursor += len(clipboard.GetText())
+		w.SetText(text)
+		w.refreshCursor()
+	} else if evt.Key == ebiten.KeyA && w.controlHeld {
+		w.setSelect(0, len(w.text))
+		w.refreshCursor()
+	}
+}
+
+func (w *TextInput) HandleKeyRelease(evt rebui.EventKeyRelease) {
+	if evt.Key == ebiten.KeyControl {
+		w.controlHeld = false
 	}
 }
 
