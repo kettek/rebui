@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"image/color"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -22,6 +23,8 @@ type TextInput struct {
 	backgroundColor color.Color
 	OnChange        func(string)
 	OnSubmit        func(string)
+	lastTime        time.Time
+	cursorHidden    bool
 }
 
 func (w *TextInput) SetWidth(width float64) {
@@ -105,6 +108,9 @@ func (w *TextInput) refreshCursor() {
 	case rebui.AlignBottom:
 		w.cursorY = w.Height - w.cursorHeight
 	}
+
+	w.cursorHidden = false
+	w.lastTime = time.Now()
 }
 
 func (w *TextInput) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
@@ -120,10 +126,16 @@ func (w *TextInput) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	screen.DrawImage(w.canvas, sop)
 
 	if w.showCursor && len(w.text) > 0 {
-		cursorY := y + w.cursorY
-		cursorX := x + w.cursorX - w.ScrollX
+		if time.Since(w.lastTime) > time.Millisecond*500 {
+			w.lastTime = time.Now()
+			w.cursorHidden = !w.cursorHidden
+		}
+		if !w.cursorHidden {
+			cursorY := y + w.cursorY
+			cursorX := x + w.cursorX - w.ScrollX
 
-		vector.StrokeLine(screen, float32(cursorX), float32(cursorY), float32(cursorX), float32(cursorY+w.cursorHeight)-1, 1, w.foregroundColor, false)
+			vector.StrokeLine(screen, float32(cursorX), float32(cursorY), float32(cursorX), float32(cursorY+w.cursorHeight)-1, 1, w.foregroundColor, false)
+		}
 	}
 
 	vector.StrokeRect(screen, float32(x), float32(y), float32(w.Width), float32(w.Height), 1, w.borderColor, false)
