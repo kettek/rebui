@@ -5,6 +5,7 @@ type Focus struct {
 	Cancelable
 	TargetWidget
 	Timestamp
+	Pointer
 }
 
 // Unfocus is triggered when a widget has lost focus.

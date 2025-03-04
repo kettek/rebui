@@ -743,6 +743,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 						focusEvent := events.Focus{
 							TargetWidget: events.TargetWidget{Widget: evt.Widget},
 							Timestamp:    evt.Timestamp,
+							Pointer:      evt.Pointer,
 						}
 						if n.OnFocus != nil {
 							n.OnFocus(&focusEvent)
