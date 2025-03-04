@@ -18,6 +18,9 @@ type TextInput struct {
 	cursorX         float64
 	cursorY         float64
 	cursorHeight    float64
+	selectInitial   int
+	selectStart     int
+	selectEnd       int
 	ScrollX         float64
 	borderColor     color.Color
 	backgroundColor color.Color
@@ -40,6 +43,8 @@ func (w *TextInput) SetHeight(height float64) {
 }
 
 func (w *TextInput) SetText(text string) {
+	w.selectStart = 0
+	w.selectEnd = 0
 	w.Label.SetText(text)
 	if w.cursor > len(w.text) {
 		w.cursor = len(w.text)
@@ -125,6 +130,12 @@ func (w *TextInput) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 
 	screen.DrawImage(w.canvas, sop)
 
+	if w.selectStart != w.selectEnd {
+		startX, _ := text.Measure(w.text[:w.selectStart], w.face, 0)
+		endX, _ := text.Measure(w.text[:w.selectEnd], w.face, 0)
+		vector.DrawFilledRect(screen, float32(x+startX), float32(y+w.cursorY)-1, float32(endX-startX), float32(w.cursorHeight)+2, color.RGBA{R: 128, G: 128, B: 128, A: 128}, true)
+	}
+
 	if w.showCursor && len(w.text) > 0 {
 		if time.Since(w.lastTime) > time.Millisecond*500 {
 			w.lastTime = time.Now()
@@ -134,7 +145,7 @@ func (w *TextInput) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 			cursorY := y + w.cursorY
 			cursorX := x + w.cursorX - w.ScrollX
 
-			vector.StrokeLine(screen, float32(cursorX), float32(cursorY), float32(cursorX), float32(cursorY+w.cursorHeight)-1, 1, w.foregroundColor, false)
+			vector.StrokeLine(screen, float32(cursorX), float32(cursorY), float32(cursorX), float32(cursorY+w.cursorHeight), 1, w.foregroundColor, false)
 		}
 	}
 
@@ -151,25 +162,51 @@ func (w *TextInput) HandleUnfocus(evt rebui.EventUnfocus) {
 }
 
 func (w *TextInput) HandlePointerPress(evt rebui.EventPointerPress) {
-	found := false
+	w.cursor = w.getTextIndex(evt.RelativeX)
+	w.refreshCursor()
+	w.selectInitial = w.cursor
+	w.setSelect(w.cursor, w.cursor)
+}
+
+func (w *TextInput) getTextIndex(x float64) int {
 	// This seems awful, but I can't think of a more reliable way to fetch such information.
 	for i := range w.text {
 		width, _ := text.Measure(w.text[:i], w.face, 0)
-		if evt.RelativeX > width {
+		if x > width {
 			continue
 		}
-		w.cursor = i
-		found = true
-		break
+		return i
 	}
-	if !found {
-		w.cursor = len(w.text)
+	return len(w.text)
+}
+
+func (w *TextInput) setSelect(x1, x2 int) {
+	w.selectStart = x1
+	w.selectEnd = x2
+}
+
+func (w *TextInput) HandlePointerGlobalMove(evt rebui.EventPointerMove) {
+	index := w.getTextIndex(evt.RelativeX)
+	if index < w.selectInitial {
+		w.setSelect(index, w.selectInitial)
+	} else {
+		w.setSelect(w.selectInitial, index)
 	}
-	w.refreshCursor()
 }
 
 func (w *TextInput) HandleKeyInput(evt rebui.EventKeyInput) {
-	w.SetText(w.text[:w.cursor] + string(evt.Rune) + w.text[w.cursor:])
+	if w.selectStart != w.selectEnd {
+		var text string
+		if w.selectStart == 0 {
+			text = w.text[w.selectEnd:]
+		} else {
+			text = w.text[:w.selectStart] + string(evt.Rune) + w.text[w.selectEnd:]
+		}
+		w.cursor = w.selectStart
+		w.SetText(text)
+	} else {
+		w.SetText(w.text[:w.cursor] + string(evt.Rune) + w.text[w.cursor:])
+	}
 	w.cursor++
 	w.refreshCursor()
 }
@@ -177,7 +214,17 @@ func (w *TextInput) HandleKeyInput(evt rebui.EventKeyInput) {
 func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 	if evt.Key == ebiten.KeyBackspace {
 		if len(w.text) > 0 {
-			if w.cursor > 0 {
+			if w.selectStart != w.selectEnd {
+				var text string
+				if w.selectStart == 0 {
+					text = w.text[w.selectEnd:]
+				} else {
+					text = w.text[:w.selectStart] + w.text[w.selectEnd:]
+				}
+				w.cursor = w.selectStart
+				w.SetText(text)
+				w.refreshCursor()
+			} else if w.cursor > 0 {
 				var text string
 				if w.cursor == len(w.text) {
 					text = w.text[:len(w.text)-1]
@@ -191,7 +238,17 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 		}
 	} else if evt.Key == ebiten.KeyDelete {
 		if len(w.text) > 0 {
-			if w.cursor < len(w.text) {
+			if w.selectStart != w.selectEnd {
+				var text string
+				if w.selectStart == 0 {
+					text = w.text[w.selectEnd:]
+				} else {
+					text = w.text[:w.selectStart] + w.text[w.selectEnd:]
+				}
+				w.cursor = w.selectStart
+				w.SetText(text)
+				w.refreshCursor()
+			} else if w.cursor < len(w.text) {
 				var text string
 				if w.cursor == len(w.text)-1 {
 					text = w.text[:len(w.text)-1]
@@ -205,11 +262,13 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 		if w.cursor > 0 {
 			w.cursor--
 		}
+		w.setSelect(0, 0)
 		w.refreshCursor()
 	} else if evt.Key == ebiten.KeyRight {
 		if w.cursor < len(w.text) {
 			w.cursor++
 		}
+		w.setSelect(0, 0)
 		w.refreshCursor()
 	} else if evt.Key == ebiten.KeyEnter {
 		if w.OnSubmit != nil {
