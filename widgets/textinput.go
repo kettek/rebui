@@ -20,6 +20,8 @@ type TextInput struct {
 	ScrollX         float64
 	borderColor     color.Color
 	backgroundColor color.Color
+	OnChange        func(string)
+	OnSubmit        func(string)
 }
 
 func (w *TextInput) SetWidth(width float64) {
@@ -38,6 +40,9 @@ func (w *TextInput) SetText(text string) {
 	w.Label.SetText(text)
 	if w.cursor > len(w.text) {
 		w.cursor = len(w.text)
+	}
+	if w.OnChange != nil {
+		w.OnChange(text)
 	}
 	w.refreshText()
 }
@@ -152,9 +157,8 @@ func (w *TextInput) HandlePointerPress(evt rebui.EventPointerPress) {
 }
 
 func (w *TextInput) HandleKeyInput(evt rebui.EventKeyInput) {
-	w.text = w.text[:w.cursor] + string(evt.Rune) + w.text[w.cursor:]
+	w.SetText(w.text[:w.cursor] + string(evt.Rune) + w.text[w.cursor:])
 	w.cursor++
-	w.refreshText()
 	w.refreshCursor()
 }
 
@@ -162,25 +166,27 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 	if evt.Key == ebiten.KeyBackspace {
 		if len(w.text) > 0 {
 			if w.cursor > 0 {
+				var text string
 				if w.cursor == len(w.text) {
-					w.text = w.text[:len(w.text)-1]
+					text = w.text[:len(w.text)-1]
 				} else {
-					w.text = w.text[:w.cursor-1] + w.text[w.cursor:]
+					text = w.text[:w.cursor-1] + w.text[w.cursor:]
 				}
 				w.cursor--
-				w.refreshText()
+				w.SetText(text)
 				w.refreshCursor()
 			}
 		}
 	} else if evt.Key == ebiten.KeyDelete {
 		if len(w.text) > 0 {
 			if w.cursor < len(w.text) {
+				var text string
 				if w.cursor == len(w.text)-1 {
-					w.text = w.text[:len(w.text)-1]
+					text = w.text[:len(w.text)-1]
 				} else {
-					w.text = w.text[:w.cursor] + w.text[w.cursor+1:]
+					text = w.text[:w.cursor] + w.text[w.cursor+1:]
 				}
-				w.refreshText()
+				w.SetText(text)
 			}
 		}
 	} else if evt.Key == ebiten.KeyLeft {
@@ -194,7 +200,9 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 		}
 		w.refreshCursor()
 	} else if evt.Key == ebiten.KeyEnter {
-		// TODO???
+		if w.OnSubmit != nil {
+			w.OnSubmit(w.text)
+		}
 	}
 }
 

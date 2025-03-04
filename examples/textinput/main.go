@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kettek/rebui"
 	_ "github.com/kettek/rebui/defaults/font"
+	"github.com/kettek/rebui/widgets"
 	_ "github.com/kettek/rebui/widgets"
 )
 
@@ -29,7 +30,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	g := &Game{}
 
-	g.layout.AddNode(rebui.Node{
+	node := g.layout.AddNode(rebui.Node{
 		Type:            "TextInput",
 		Width:           "50%",
 		Height:          "30",
@@ -43,6 +44,14 @@ func main() {
 		VerticalAlign:   rebui.AlignMiddle,
 		FocusIndex:      1,
 	})
+
+	node.Widget.(*widgets.TextInput).OnChange = func(text string) {
+		log.Println("Text changed:", text)
+	}
+	node.Widget.(*widgets.TextInput).OnSubmit = func(text string) {
+		node.Widget.(*widgets.TextInput).SetText("")
+		log.Println("Text submitted:", text)
+	}
 
 	ebiten.SetWindowSize(320, 240)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
