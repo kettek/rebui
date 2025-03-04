@@ -16,6 +16,7 @@ type Node struct {
 	OriginY         string
 	Text            string
 	TextWrap        Wrap
+	Font            string
 	FontSize        string
 	Widget          Widget `json:"-"`
 	BackgroundColor string
