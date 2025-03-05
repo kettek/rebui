@@ -39,15 +39,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	g := &Game{}
 
-	json, _ := os.ReadFile("layout.json")
-
-	layout, err := rebui.NewLayout(string(json))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	g.layout = layout
-	g.layout.SetImageLoader(func(path string) (*ebiten.Image, error) {
+	rebui.SetImageLoader(func(path string) (*ebiten.Image, error) {
 		if path == "icon.png" {
 			reader := bytes.NewReader(imageBytes)
 			img, _, err := image.Decode(reader)
@@ -60,6 +52,14 @@ func main() {
 		return nil, fmt.Errorf("image %s not found", path)
 	})
 
+	json, _ := os.ReadFile("layout.json")
+
+	layout, err := rebui.NewLayout(string(json))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	g.layout = layout
 	g.layout.Generate()
 
 	ebiten.SetWindowSize(640, 480)

@@ -29,8 +29,6 @@ type Layout struct {
 	Nodes         []*Node
 	currentState  currentState
 	//
-	imageLoader         func(string) (*ebiten.Image, error)
-	fontLoader          func(string) (text.Face, error)
 	relayout            bool
 	pressedKeys         []key
 	pressedMouseButtons []mouse
@@ -544,13 +542,11 @@ func (l *Layout) generateNode(n *Node) {
 			}
 			if n.Font != "" {
 				if ff, ok := n.Widget.(setters.FontFace); ok {
-					if l.fontLoader != nil {
-						face, err := l.fontLoader(n.Font)
-						if err == nil {
-							ff.SetFontFace(face)
-						} else {
-							log.Println(err)
-						}
+					face, err := LoadFont(n.Font)
+					if err == nil {
+						ff.SetFontFace(face)
+					} else {
+						log.Println(err)
 					}
 				}
 			}
@@ -566,35 +562,15 @@ func (l *Layout) generateNode(n *Node) {
 				is.SetImageScale(n.ImageScale)
 			}
 			if is, ok := n.Widget.(setters.Image); ok {
-				if l.imageLoader != nil {
-					img, err := l.imageLoader(n.Image)
-					if err == nil {
-						is.SetImage(img)
-					} else {
-						log.Println(err)
-					}
+				img, err := LoadImage(n.Image)
+				if err == nil {
+					is.SetImage(img)
+				} else {
+					log.Println(err)
 				}
 			}
 		}
 	}
-}
-
-// SetImageLoader can be used to set a loader that controls loading images by string.
-func (l *Layout) SetImageLoader(cb func(string) (*ebiten.Image, error)) {
-	l.imageLoader = cb
-}
-
-// SetFontLoader can be used to a set a loader that controls loading fonts by string.
-func (l *Layout) SetFontLoader(cb func(string) (text.Face, error)) {
-	l.fontLoader = cb
-}
-
-// LoadFont loads the given font by name. This requires a proper Loader to be set in `SetFontLoader`.
-func (l *Layout) LoadFont(name string) (text.Face, error) {
-	if l.fontLoader != nil {
-		return l.fontLoader(name)
-	}
-	return nil, nil
 }
 
 // layoutNode sets the node's various positions and sizings based upon the containing outer width and height.

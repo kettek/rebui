@@ -40,7 +40,7 @@ var font2Bytes []byte
 func main() {
 	g := &Game{}
 
-	g.layout.SetFontLoader(func(name string) (text.Face, error) {
+	rebui.SetFontLoader(func(name string) (text.Face, error) {
 		var b []byte
 		if name == "x10y12pxDonguriDuel" {
 			b = font1Bytes
@@ -83,7 +83,7 @@ func main() {
 		} else {
 			font = "x10y12pxDonguriDuel"
 		}
-		font, _ := g.layout.LoadFont(font)
+		font, _ := rebui.LoadFont(font)
 		evt.Widget.(*widgets.Text).SetFontFace(font)
 		evt.Widget.(*widgets.Text).SetFontSize(size)
 	}
