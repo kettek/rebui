@@ -8,19 +8,21 @@ import (
 
 // Theme is a collection of defaults for how elements should be rendered.
 type Theme struct {
-	BackgroundColor color.Color
-	ForegroundColor color.Color
-	BorderColor     color.Color
-	FontFace        text.Face
+	BackgroundColor   color.Color
+	ForegroundColor   color.Color
+	BorderColor       color.Color
+	ActiveBorderColor color.Color
+	FontFace          text.Face
 }
 
 // NewTheme makes a new theme, wow.
 func NewTheme() *Theme {
 	return &Theme{
-		BackgroundColor: color.RGBA{0, 0, 0, 0},
-		ForegroundColor: color.RGBA{0, 0, 0, 0},
-		BorderColor:     color.RGBA{0, 0, 0, 0},
-		FontFace:        defaultFontFace,
+		BackgroundColor:   color.RGBA{0, 0, 0, 0},
+		ForegroundColor:   color.RGBA{0, 0, 0, 0},
+		ActiveBorderColor: color.RGBA{0, 0, 0, 0},
+		BorderColor:       color.RGBA{0, 0, 0, 0},
+		FontFace:          defaultFontFace,
 	}
 }
 
@@ -45,4 +47,5 @@ func init() {
 	DefaultTheme.BackgroundColor = color.RGBA{96, 96, 96, 255}
 	DefaultTheme.ForegroundColor = color.RGBA{200, 200, 200, 255}
 	DefaultTheme.BorderColor = color.RGBA{150, 150, 150, 255}
+	DefaultTheme.ActiveBorderColor = color.RGBA{255, 255, 0, 255}
 }
