@@ -67,7 +67,7 @@ func (g *Game) setupButtons() {
 		Text:   "Left",
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetHorizontalAlignment(rebui.AlignLeft)
+		txt.AssignHorizontalAlignment(rebui.AlignLeft)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:            "Button",
@@ -79,7 +79,7 @@ func (g *Game) setupButtons() {
 		HorizontalAlign: rebui.AlignCenter,
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetHorizontalAlignment(rebui.AlignCenter)
+		txt.AssignHorizontalAlignment(rebui.AlignCenter)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:            "Button",
@@ -91,7 +91,7 @@ func (g *Game) setupButtons() {
 		HorizontalAlign: rebui.AlignRight,
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetHorizontalAlignment(rebui.AlignRight)
+		txt.AssignHorizontalAlignment(rebui.AlignRight)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:   "Button",
@@ -102,7 +102,7 @@ func (g *Game) setupButtons() {
 		Text:   "Top",
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetVerticalAlignment(rebui.AlignTop)
+		txt.AssignVerticalAlignment(rebui.AlignTop)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:          "Button",
@@ -115,7 +115,7 @@ func (g *Game) setupButtons() {
 		VerticalAlign: rebui.AlignMiddle,
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetVerticalAlignment(rebui.AlignMiddle)
+		txt.AssignVerticalAlignment(rebui.AlignMiddle)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:          "Button",
@@ -128,7 +128,7 @@ func (g *Game) setupButtons() {
 		VerticalAlign: rebui.AlignBottom,
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetVerticalAlignment(rebui.AlignBottom)
+		txt.AssignVerticalAlignment(rebui.AlignBottom)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:   "Button",
@@ -139,7 +139,7 @@ func (g *Game) setupButtons() {
 		Text:   "Wrap",
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetTextWrap(rebui.WrapWord)
+		txt.AssignTextWrap(rebui.WrapWord)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:   "Button",
@@ -151,7 +151,7 @@ func (g *Game) setupButtons() {
 		Text:   "Rune",
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetTextWrap(rebui.WrapRune)
+		txt.AssignTextWrap(rebui.WrapRune)
 	}
 	g.layout.AddNode(rebui.Node{
 		Type:   "Button",
@@ -163,6 +163,6 @@ func (g *Game) setupButtons() {
 		Text:   "None",
 	}).OnPointerPressed = func(e rebui.EventPointerPressed) {
 		txt := g.layout.GetByID("text").Widget.(*widgets.Text)
-		txt.SetTextWrap(rebui.WrapNone)
+		txt.AssignTextWrap(rebui.WrapNone)
 	}
 }

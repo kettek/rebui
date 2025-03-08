@@ -53,19 +53,19 @@ type MyButton struct {
 }
 
 func (b *MyButton) HandlePointerIn(e rebui.EventPointerIn) {
-	b.SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
+	b.AssignBackgroundColor(color.NRGBA{0, 255, 0, 255})
 }
 
 func (b *MyButton) HandlePointerOut(e rebui.EventPointerOut) {
-	b.SetBackgroundColor(color.NRGBA{255, 0, 0, 255})
+	b.AssignBackgroundColor(color.NRGBA{255, 0, 0, 255})
 }
 
 func (b *MyButton) HandlePointerPress(e rebui.EventPointerPress) {
-	b.SetBackgroundColor(color.NRGBA{0, 0, 255, 255})
+	b.AssignBackgroundColor(color.NRGBA{0, 0, 255, 255})
 }
 
 func (b *MyButton) HandlePointerRelease(e rebui.EventPointerRelease) {
-	b.SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
+	b.AssignBackgroundColor(color.NRGBA{0, 255, 0, 255})
 }
 
 func init() {

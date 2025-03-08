@@ -18,23 +18,23 @@ type Image struct {
 	borderColor color.Color
 }
 
-func (w *Image) SetImage(image *ebiten.Image) {
+func (w *Image) AssignImage(image *ebiten.Image) {
 	w.image = image
 }
 
-func (w *Image) SetImageScale(scale rebui.ImageScale) {
+func (w *Image) AssignImageScale(scale rebui.ImageScale) {
 	w.scale = scale
 }
 
-func (w *Image) SetVerticalAlignment(align rebui.Alignment) {
+func (w *Image) AssignVerticalAlignment(align rebui.Alignment) {
 	w.valign = align
 }
 
-func (w *Image) SetHorizontalAlignment(align rebui.Alignment) {
+func (w *Image) AssignHorizontalAlignment(align rebui.Alignment) {
 	w.halign = align
 }
 
-func (w *Image) SetBorderColor(clr color.Color) {
+func (w *Image) AssignBorderColor(clr color.Color) {
 	w.borderColor = clr
 }
 

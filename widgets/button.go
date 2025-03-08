@@ -14,11 +14,11 @@ type Button struct {
 	borderColor     color.Color
 }
 
-func (b *Button) SetBackgroundColor(clr color.Color) {
+func (b *Button) AssignBackgroundColor(clr color.Color) {
 	b.backgroundColor = clr
 }
 
-func (b *Button) SetBorderColor(clr color.Color) {
+func (b *Button) AssignBorderColor(clr color.Color) {
 	b.borderColor = clr
 }
 

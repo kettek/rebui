@@ -32,22 +32,22 @@ type TextInput struct {
 	controlHeld     bool // TODO: Move this to be as part of KeyEvent system.
 }
 
-func (w *TextInput) SetWidth(width float64) {
+func (w *TextInput) AssignWidth(width float64) {
 	w.Width = width
 	w.refreshCanvas()
 	w.refreshText()
 }
 
-func (w *TextInput) SetHeight(height float64) {
+func (w *TextInput) AssignHeight(height float64) {
 	w.Height = height
 	w.refreshCanvas()
 	w.refreshText()
 }
 
-func (w *TextInput) SetText(text string) {
+func (w *TextInput) AssignText(text string) {
 	w.selectStart = 0
 	w.selectEnd = 0
-	w.Label.SetText(text)
+	w.Label.AssignText(text)
 	if w.cursor > len(text) {
 		w.cursor = len(text)
 	}
@@ -57,21 +57,21 @@ func (w *TextInput) SetText(text string) {
 	w.refreshText()
 }
 
-func (w *TextInput) SetFontSize(size float64) {
-	w.Label.SetFontSize(size)
+func (w *TextInput) AssignFontSize(size float64) {
+	w.Label.AssignFontSize(size)
 	w.refreshText()
 }
 
-func (w *TextInput) SetForegroundColor(clr color.Color) {
-	w.Label.SetForegroundColor(clr)
+func (w *TextInput) AssignForegroundColor(clr color.Color) {
+	w.Label.AssignForegroundColor(clr)
 	w.refreshText()
 }
 
-func (w *TextInput) SetBackgroundColor(clr color.Color) {
+func (w *TextInput) AssignBackgroundColor(clr color.Color) {
 	w.backgroundColor = clr
 }
 
-func (w *TextInput) SetBorderColor(clr color.Color) {
+func (w *TextInput) AssignBorderColor(clr color.Color) {
 	w.borderColor = clr
 }
 
@@ -208,9 +208,9 @@ func (w *TextInput) HandleKeyInput(evt rebui.EventKeyInput) {
 			text = w.text[:w.selectStart] + string(evt.Rune) + w.text[w.selectEnd:]
 		}
 		w.cursor = w.selectStart
-		w.SetText(text)
+		w.AssignText(text)
 	} else {
-		w.SetText(w.text[:w.cursor] + string(evt.Rune) + w.text[w.cursor:])
+		w.AssignText(w.text[:w.cursor] + string(evt.Rune) + w.text[w.cursor:])
 	}
 	w.cursor++
 	w.refreshCursor()
@@ -227,7 +227,7 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 					text = w.text[:w.selectStart] + w.text[w.selectEnd:]
 				}
 				w.cursor = w.selectStart
-				w.SetText(text)
+				w.AssignText(text)
 				w.refreshCursor()
 			} else if w.cursor > 0 {
 				var text string
@@ -237,7 +237,7 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 					text = w.text[:w.cursor-1] + w.text[w.cursor:]
 				}
 				w.cursor--
-				w.SetText(text)
+				w.AssignText(text)
 				w.refreshCursor()
 			}
 		}
@@ -251,7 +251,7 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 					text = w.text[:w.selectStart] + w.text[w.selectEnd:]
 				}
 				w.cursor = w.selectStart
-				w.SetText(text)
+				w.AssignText(text)
 				w.refreshCursor()
 			} else if w.cursor < len(w.text) {
 				var text string
@@ -260,7 +260,7 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 				} else {
 					text = w.text[:w.cursor] + w.text[w.cursor+1:]
 				}
-				w.SetText(text)
+				w.AssignText(text)
 			}
 		}
 	} else if evt.Key == ebiten.KeyLeft {
@@ -288,7 +288,7 @@ func (w *TextInput) HandleKeyPress(evt rebui.EventKeyPress) {
 	} else if evt.Key == ebiten.KeyV && w.controlHeld {
 		text := w.text[:w.cursor] + clipboard.GetText() + w.text[w.cursor:]
 		w.cursor += len(clipboard.GetText())
-		w.SetText(text)
+		w.AssignText(text)
 		w.refreshCursor()
 	} else if evt.Key == ebiten.KeyA && w.controlHeld {
 		w.setSelect(0, len(w.text))

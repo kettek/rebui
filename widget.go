@@ -2,9 +2,9 @@ package rebui
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kettek/rebui/widgets/assigners"
 	"github.com/kettek/rebui/widgets/getters"
 	"github.com/kettek/rebui/widgets/receivers"
-	"github.com/kettek/rebui/widgets/setters"
 )
 
 // Widget is the interface that all widgets must implement.
@@ -12,62 +12,62 @@ type Widget interface {
 	Draw(*ebiten.Image, *ebiten.DrawImageOptions)
 }
 
-// SetterBackgroundColor is an alias.
-type SetterBackgroundColor = setters.BackgroundColor
+// AssignerBackgroundColor is an alias.
+type AssignerBackgroundColor = assigners.BackgroundColor
 
-// SetterForegroundColor is an alias.
-type SetterForegroundColor = setters.ForegroundColor
+// AssignerForegroundColor is an alias.
+type AssignerForegroundColor = assigners.ForegroundColor
 
-// SetterBorderColor is an alias.
-type SetterBorderColor = setters.BorderColor
+// AssignerBorderColor is an alias.
+type AssignerBorderColor = assigners.BorderColor
 
-// SetterVerticalAlignment is an alias.
-type SetterVerticalAlignment = setters.VerticalAlignment
+// AssignerVerticalAlignment is an alias.
+type AssignerVerticalAlignment = assigners.VerticalAlignment
 
-// SetterHorizontalAlignment is an alias.
-type SetterHorizontalAlignment = setters.HorizontalAlignment
+// AssignerHorizontalAlignment is an alias.
+type AssignerHorizontalAlignment = assigners.HorizontalAlignment
 
-// SetterText is an alias.
-type SetterText = setters.Text
+// AssignerText is an alias.
+type AssignerText = assigners.Text
 
-// SetterTextWrap is an alias.
-type SetterTextWrap = setters.TextWrap
+// AssignerTextWrap is an alias.
+type AssignerTextWrap = assigners.TextWrap
 
-// SetterFontFace is an alias.
-type SetterFontFace = setters.FontFace
+// AssignerFontFace is an alias.
+type AssignerFontFace = assigners.FontFace
 
-// SetterFontSize is an alias.
-type SetterFontSize = setters.FontSize
+// AssignerFontSize is an alias.
+type AssignerFontSize = assigners.FontSize
 
-// SetterImageScale is an alias.
-type SetterImageScale = setters.ImageScale
+// AssignerImageScale is an alias.
+type AssignerImageScale = assigners.ImageScale
 
-// SetterImage is an alias.
-type SetterImage = setters.Image
+// AssignerImage is an alias.
+type AssignerImage = assigners.Image
 
 // GetterX is an alias.
 type GetterX = getters.X
 
-// SetterX is an alias.
-type SetterX = setters.X
+// AssignerX is an alias.
+type AssignerX = assigners.X
 
 // GetterY is an alias.
 type GetterY = getters.Y
 
-// SetterY is an alias.
-type SetterY = setters.Y
+// AssignerY is an alias.
+type AssignerY = assigners.Y
 
-// SetterOriginX is an alias.
-type SetterOriginX = setters.OriginX
+// AssignerOriginX is an alias.
+type AssignerOriginX = assigners.OriginX
 
-// SetterOriginY is an alias.
-type SetterOriginY = setters.OriginY
+// AssignerOriginY is an alias.
+type AssignerOriginY = assigners.OriginY
 
-// SetterWidth is an alias.
-type SetterWidth = setters.Width
+// AssignerWidth is an alias.
+type AssignerWidth = assigners.Width
 
-// SetterHeight is an alias.
-type SetterHeight = setters.Height
+// AssignerHeight is an alias.
+type AssignerHeight = assigners.Height
 
 // ReceiverPointerMove is an alias.
 type ReceiverPointerMove = receivers.PointerMove

@@ -22,11 +22,11 @@ type Text struct {
 	halign          rebui.Alignment
 }
 
-func (w *Text) SetBorderColor(clr color.Color) {
+func (w *Text) AssignBorderColor(clr color.Color) {
 	w.borderColor = clr
 }
 
-func (w *Text) SetTextWrap(wrap rebui.Wrap) {
+func (w *Text) AssignTextWrap(wrap rebui.Wrap) {
 	w.wrap = wrap
 }
 
@@ -41,27 +41,27 @@ func (w *Text) Layout() {
 	})
 }
 
-func (w *Text) SetText(text string) {
+func (w *Text) AssignText(text string) {
 	w.text = text
 }
 
-func (w *Text) SetForegroundColor(clr color.Color) {
+func (w *Text) AssignForegroundColor(clr color.Color) {
 	w.foregroundColor = clr
 }
 
-func (w *Text) SetVerticalAlignment(align rebui.Alignment) {
+func (w *Text) AssignVerticalAlignment(align rebui.Alignment) {
 	w.valign = align
 }
 
-func (w *Text) SetHorizontalAlignment(align rebui.Alignment) {
+func (w *Text) AssignHorizontalAlignment(align rebui.Alignment) {
 	w.halign = align
 }
 
-func (w *Text) SetFontFace(face text.Face) {
+func (w *Text) AssignFontFace(face text.Face) {
 	w.face = face
 }
 
-func (w *Text) SetFontSize(size float64) {
+func (w *Text) AssignFontSize(size float64) {
 	// Re-use FontFace.
 	if textFace, ok := w.face.(*text.GoTextFace); ok {
 		txt := *textFace

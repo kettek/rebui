@@ -17,29 +17,29 @@ func (b *Icon) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	b.Image.Draw(screen, sop)
 }
 
-func (b *Icon) SetBorderColor(clr color.Color) {
+func (b *Icon) AssignBorderColor(clr color.Color) {
 	b.Button.borderColor = clr
 	b.Image.borderColor = clr
 }
 
-func (b *Icon) SetX(x float64) {
-	b.Button.SetX(x)
-	b.Image.SetX(x)
+func (b *Icon) AssignX(x float64) {
+	b.Button.AssignX(x)
+	b.Image.AssignX(x)
 }
 
-func (b *Icon) SetY(y float64) {
-	b.Button.SetY(y)
-	b.Image.SetY(y)
+func (b *Icon) AssignY(y float64) {
+	b.Button.AssignY(y)
+	b.Image.AssignY(y)
 }
 
-func (b *Icon) SetWidth(w float64) {
-	b.Button.SetWidth(w)
-	b.Image.SetWidth(w)
+func (b *Icon) AssignWidth(w float64) {
+	b.Button.AssignWidth(w)
+	b.Image.AssignWidth(w)
 }
 
-func (b *Icon) SetHeight(h float64) {
-	b.Button.SetHeight(h)
-	b.Image.SetHeight(h)
+func (b *Icon) AssignHeight(h float64) {
+	b.Button.AssignHeight(h)
+	b.Image.AssignHeight(h)
 }
 
 func init() {

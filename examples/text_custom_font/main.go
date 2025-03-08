@@ -84,8 +84,8 @@ func main() {
 			font = "x10y12pxDonguriDuel"
 		}
 		font, _ := rebui.LoadFont(font)
-		evt.Widget.(*widgets.Text).SetFontFace(font)
-		evt.Widget.(*widgets.Text).SetFontSize(size)
+		evt.Widget.(*widgets.Text).AssignFontFace(font)
+		evt.Widget.(*widgets.Text).AssignFontSize(size)
 	}
 
 	ebiten.SetWindowSize(640, 480)

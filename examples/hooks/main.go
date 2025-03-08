@@ -43,17 +43,17 @@ func main() {
 	node := g.layout.GetByID("button1")
 
 	node.OnPointerIn = func(e rebui.EventPointerIn) {
-		e.Widget.(*widgets.Button).SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
+		e.Widget.(*widgets.Button).AssignBackgroundColor(color.NRGBA{0, 255, 0, 255})
 	}
 
 	node.OnPointerOut = func(e rebui.EventPointerOut) {
-		e.Widget.(*widgets.Button).SetBackgroundColor(color.NRGBA{255, 0, 0, 255})
+		e.Widget.(*widgets.Button).AssignBackgroundColor(color.NRGBA{255, 0, 0, 255})
 	}
 	node.OnPointerPress = func(e rebui.EventPointerPress) {
-		e.Widget.(*widgets.Button).SetBackgroundColor(color.NRGBA{0, 0, 255, 255})
+		e.Widget.(*widgets.Button).AssignBackgroundColor(color.NRGBA{0, 0, 255, 255})
 	}
 	node.OnPointerRelease = func(e rebui.EventPointerRelease) {
-		e.Widget.(*widgets.Button).SetBackgroundColor(color.NRGBA{0, 255, 0, 255})
+		e.Widget.(*widgets.Button).AssignBackgroundColor(color.NRGBA{0, 255, 0, 255})
 	}
 
 	ebiten.SetWindowSize(320, 240)

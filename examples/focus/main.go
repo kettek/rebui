@@ -80,11 +80,11 @@ type MyButton struct {
 }
 
 func (b *MyButton) HandleFocus(e rebui.EventFocus) {
-	b.SetBorderColor(color.NRGBA{0, 255, 0, 255})
+	b.AssignBorderColor(color.NRGBA{0, 255, 0, 255})
 }
 
 func (b *MyButton) HandleUnfocus(e rebui.EventUnfocus) {
-	b.SetBorderColor(color.NRGBA{255, 255, 255, 255})
+	b.AssignBorderColor(color.NRGBA{255, 255, 255, 255})
 }
 
 func (b *MyButton) HandleKeyInput(e rebui.EventKeyInput) {
@@ -92,7 +92,7 @@ func (b *MyButton) HandleKeyInput(e rebui.EventKeyInput) {
 }
 
 func (b *MyButton) HandleKeyPress(e rebui.EventKeyPress) {
-	b.SetText(e.Key.String() + " " + fmt.Sprintf("%d", e.Repeat))
+	b.AssignText(e.Key.String() + " " + fmt.Sprintf("%d", e.Repeat))
 }
 
 func (b *MyButton) HandleKeyRelease(e rebui.EventKeyRelease) {
@@ -105,16 +105,16 @@ type MyInput struct {
 }
 
 func (b *MyInput) HandleFocus(e rebui.EventFocus) {
-	b.SetBorderColor(color.NRGBA{0, 255, 0, 255})
+	b.AssignBorderColor(color.NRGBA{0, 255, 0, 255})
 }
 
 func (b *MyInput) HandleUnfocus(e rebui.EventUnfocus) {
-	b.SetBorderColor(color.NRGBA{255, 255, 255, 255})
+	b.AssignBorderColor(color.NRGBA{255, 255, 255, 255})
 }
 
 func (b *MyInput) HandleKeyInput(e rebui.EventKeyInput) {
 	b.str += string(e.Rune)
-	b.SetText(b.str)
+	b.AssignText(b.str)
 }
 
 func (b *MyInput) HandleKeyPress(e rebui.EventKeyPress) {
@@ -122,7 +122,7 @@ func (b *MyInput) HandleKeyPress(e rebui.EventKeyPress) {
 		if len(b.str) > 0 {
 			b.str = b.str[:len(b.str)-1]
 		}
-		b.SetText(b.str)
+		b.AssignText(b.str)
 	} else if e.Key.String() == "Enter" {
 		b.str += "\n"
 	}

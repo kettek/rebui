@@ -59,14 +59,14 @@ type DraggableButton struct {
 // HandlePointerPress receives a press event if the pointer is over the element.
 func (b *DraggableButton) HandlePointerPress(e rebui.EventPointerPress) {
 	b.pressCount++
-	b.SetBackgroundColor(color.NRGBA{255, 0, 0, 255})
+	b.AssignBackgroundColor(color.NRGBA{255, 0, 0, 255})
 }
 
 // HandlePointerRelease receives a release event if the pointer is over the element.
 func (b *DraggableButton) HandlePointerRelease(e rebui.EventPointerRelease) {
 	b.pressCount--
 	if b.pressCount <= 0 {
-		b.SetBackgroundColor(rebui.CurrentTheme().BackgroundColor)
+		b.AssignBackgroundColor(rebui.CurrentTheme().BackgroundColor)
 	}
 }
 
@@ -74,7 +74,7 @@ func (b *DraggableButton) HandlePointerRelease(e rebui.EventPointerRelease) {
 func (b *DraggableButton) HandlePointerGlobalRelease(e rebui.EventPointerRelease) {
 	b.pressCount--
 	if b.pressCount <= 0 {
-		b.SetBackgroundColor(rebui.CurrentTheme().BackgroundColor)
+		b.AssignBackgroundColor(rebui.CurrentTheme().BackgroundColor)
 	}
 }
 

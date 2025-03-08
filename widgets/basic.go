@@ -11,8 +11,8 @@ func (b *Basic) Hit(x, y float64) bool {
 	return x >= b.X && x <= b.X+b.Width && y >= b.Y && y <= b.Y+b.Height
 }
 
-// SetWidth sets the width of the element.
-func (b *Basic) SetWidth(w float64) {
+// AssignWidth sets the width of the element.
+func (b *Basic) AssignWidth(w float64) {
 	b.Width = w
 }
 
@@ -21,8 +21,8 @@ func (b *Basic) GetWidth() float64 {
 	return b.Width
 }
 
-// SetHeight sets the height of the element.
-func (b *Basic) SetHeight(h float64) {
+// AssignHeight sets the height of the element.
+func (b *Basic) AssignHeight(h float64) {
 	b.Height = h
 }
 
@@ -31,8 +31,8 @@ func (b *Basic) GetHeight() float64 {
 	return b.Height
 }
 
-// SetX sets the x position of the element.
-func (b *Basic) SetX(x float64) {
+// AssignX sets the x position of the element.
+func (b *Basic) AssignX(x float64) {
 	b.X = x
 }
 
@@ -41,8 +41,8 @@ func (b *Basic) GetX() float64 {
 	return b.X
 }
 
-// SetY sets the y position of the element.
-func (b *Basic) SetY(y float64) {
+// AssignY sets the y position of the element.
+func (b *Basic) AssignY(y float64) {
 	b.Y = y
 }
 
@@ -51,12 +51,12 @@ func (b *Basic) GetY() float64 {
 	return b.Y
 }
 
-// SetOriginX sets the origin x position of the element.
-func (b *Basic) SetOriginX(x float64) {
+// AssignOriginX sets the origin x position of the element.
+func (b *Basic) AssignOriginX(x float64) {
 	b.OriginX = x
 }
 
-// SetOriginY sets the origin y position of the element.
-func (b *Basic) SetOriginY(y float64) {
+// AssignOriginY sets the origin y position of the element.
+func (b *Basic) AssignOriginY(y float64) {
 	b.OriginY = y
 }

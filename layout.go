@@ -16,9 +16,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kettek/rebui/events"
 	"github.com/kettek/rebui/style"
+	"github.com/kettek/rebui/widgets/assigners"
 	"github.com/kettek/rebui/widgets/getters"
 	"github.com/kettek/rebui/widgets/receivers"
-	"github.com/kettek/rebui/widgets/setters"
 )
 
 // Layout is used to control layout and manage evts.
@@ -516,55 +516,55 @@ func (l *Layout) generateNode(n *Node) {
 		if k == n.Type {
 			n.Widget = reflect.New(reflect.TypeOf(h).Elem()).Interface().(Widget)
 			// Call our setter interfaces if desired.
-			if bcs, ok := n.Widget.(setters.BackgroundColor); ok {
-				bcs.SetBackgroundColor(stringToColor(n.BackgroundColor, style.CurrentTheme().BackgroundColor))
+			if bcs, ok := n.Widget.(assigners.BackgroundColor); ok {
+				bcs.AssignBackgroundColor(stringToColor(n.BackgroundColor, style.CurrentTheme().BackgroundColor))
 			}
-			if fcs, ok := n.Widget.(setters.ForegroundColor); ok {
-				fcs.SetForegroundColor(stringToColor(n.ForegroundColor, style.CurrentTheme().ForegroundColor))
+			if fcs, ok := n.Widget.(assigners.ForegroundColor); ok {
+				fcs.AssignForegroundColor(stringToColor(n.ForegroundColor, style.CurrentTheme().ForegroundColor))
 			}
-			if bcs, ok := n.Widget.(setters.BorderColor); ok {
-				bcs.SetBorderColor(stringToColor(n.BorderColor, style.CurrentTheme().BorderColor))
+			if bcs, ok := n.Widget.(assigners.BorderColor); ok {
+				bcs.AssignBorderColor(stringToColor(n.BorderColor, style.CurrentTheme().BorderColor))
 			}
-			if vas, ok := n.Widget.(setters.VerticalAlignment); ok {
-				vas.SetVerticalAlignment(n.VerticalAlign)
+			if vas, ok := n.Widget.(assigners.VerticalAlignment); ok {
+				vas.AssignVerticalAlignment(n.VerticalAlign)
 			}
-			if has, ok := n.Widget.(setters.HorizontalAlignment); ok {
-				has.SetHorizontalAlignment(n.HorizontalAlign)
+			if has, ok := n.Widget.(assigners.HorizontalAlignment); ok {
+				has.AssignHorizontalAlignment(n.HorizontalAlign)
 			}
-			if ts, ok := n.Widget.(setters.Text); ok {
-				ts.SetText(n.Text)
+			if ts, ok := n.Widget.(assigners.Text); ok {
+				ts.AssignText(n.Text)
 			}
-			if tws, ok := n.Widget.(setters.TextWrap); ok {
-				tws.SetTextWrap(n.TextWrap)
+			if tws, ok := n.Widget.(assigners.TextWrap); ok {
+				tws.AssignTextWrap(n.TextWrap)
 			}
-			if fs, ok := n.Widget.(setters.FontFace); ok {
-				fs.SetFontFace(style.CurrentTheme().FontFace)
+			if fs, ok := n.Widget.(assigners.FontFace); ok {
+				fs.AssignFontFace(style.CurrentTheme().FontFace)
 			}
 			if n.Font != "" {
-				if ff, ok := n.Widget.(setters.FontFace); ok {
+				if ff, ok := n.Widget.(assigners.FontFace); ok {
 					face, err := LoadFont(n.Font)
 					if err == nil {
-						ff.SetFontFace(face)
+						ff.AssignFontFace(face)
 					} else {
 						log.Println(err)
 					}
 				}
 			}
 			if n.FontSize != "" {
-				if fs, ok := n.Widget.(setters.FontSize); ok {
+				if fs, ok := n.Widget.(assigners.FontSize); ok {
 					if ff, ok := style.CurrentTheme().FontFace.(*text.GoTextFace); ok {
 						size := stringToPosition(l, n.FontSize, ff.Size, true) // FIXME: This re-use is goofy, as it allows unintended at/after usage.
-						fs.SetFontSize(size)
+						fs.AssignFontSize(size)
 					}
 				}
 			}
-			if is, ok := n.Widget.(setters.ImageScale); ok {
-				is.SetImageScale(n.ImageScale)
+			if is, ok := n.Widget.(assigners.ImageScale); ok {
+				is.AssignImageScale(n.ImageScale)
 			}
-			if is, ok := n.Widget.(setters.Image); ok {
+			if is, ok := n.Widget.(assigners.Image); ok {
 				img, err := LoadImage(n.Image)
 				if err == nil {
-					is.SetImage(img)
+					is.AssignImage(img)
 				} else {
 					log.Println(err)
 				}
@@ -596,8 +596,8 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	if !skipWidth {
 		if n.Width != "" {
 			nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
-			if ws, ok := n.Widget.(setters.Width); ok {
-				ws.SetWidth(nodeWidth)
+			if ws, ok := n.Widget.(assigners.Width); ok {
+				ws.AssignWidth(nodeWidth)
 			}
 			n.width = nodeWidth
 		}
@@ -605,8 +605,8 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	if !skipHeight {
 		if n.Height != "" {
 			nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
-			if hs, ok := n.Widget.(setters.Height); ok {
-				hs.SetHeight(nodeHeight)
+			if hs, ok := n.Widget.(assigners.Height); ok {
+				hs.AssignHeight(nodeHeight)
 			}
 			n.height = nodeHeight
 		}
@@ -629,26 +629,26 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 	if !skipX {
 		// Origin uses the node's own width and height to determine offsets.
 		originX := stringToPosition(l, n.OriginX, nodeWidth, false)
-		if oxs, ok := n.Widget.(setters.OriginX); ok {
-			oxs.SetOriginX(originX)
+		if oxs, ok := n.Widget.(assigners.OriginX); ok {
+			oxs.AssignOriginX(originX)
 		}
 		if n.X != "" {
 			nodeX = stringToPosition(l, n.X, outerWidth, false)
-			if xs, ok := n.Widget.(setters.X); ok {
-				xs.SetX(nodeX + originX)
+			if xs, ok := n.Widget.(assigners.X); ok {
+				xs.AssignX(nodeX + originX)
 			}
 			n.x = nodeX + originX
 		}
 	}
 	if !skipY {
 		originY := stringToPosition(l, n.OriginY, nodeHeight, true)
-		if oys, ok := n.Widget.(setters.OriginY); ok {
-			oys.SetOriginY(originY)
+		if oys, ok := n.Widget.(assigners.OriginY); ok {
+			oys.AssignOriginY(originY)
 		}
 		if n.Y != "" {
 			nodeY = stringToPosition(l, n.Y, outerHeight, true)
-			if ys, ok := n.Widget.(setters.Y); ok {
-				ys.SetY(nodeY + originY)
+			if ys, ok := n.Widget.(assigners.Y); ok {
+				ys.AssignY(nodeY + originY)
 			}
 			n.y = nodeY + originY
 		}

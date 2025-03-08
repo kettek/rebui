@@ -51,7 +51,7 @@ func main() {
 		log.Println("Text changed:", text)
 	}
 	node.Widget.(*widgets.TextInput).OnSubmit = func(text string) {
-		node.Widget.(*widgets.TextInput).SetText("")
+		node.Widget.(*widgets.TextInput).AssignText("")
 		log.Println("Text submitted:", text)
 	}
 

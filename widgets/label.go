@@ -17,27 +17,27 @@ type Label struct {
 	halign          rebui.Alignment
 }
 
-func (w *Label) SetText(text string) {
+func (w *Label) AssignText(text string) {
 	w.text = text
 }
 
-func (w *Label) SetForegroundColor(clr color.Color) {
+func (w *Label) AssignForegroundColor(clr color.Color) {
 	w.foregroundColor = clr
 }
 
-func (w *Label) SetVerticalAlignment(align rebui.Alignment) {
+func (w *Label) AssignVerticalAlignment(align rebui.Alignment) {
 	w.valign = align
 }
 
-func (w *Label) SetHorizontalAlignment(align rebui.Alignment) {
+func (w *Label) AssignHorizontalAlignment(align rebui.Alignment) {
 	w.halign = align
 }
 
-func (w *Label) SetFontFace(face text.Face) {
+func (w *Label) AssignFontFace(face text.Face) {
 	w.face = face
 }
 
-func (w *Label) SetFontSize(size float64) {
+func (w *Label) AssignFontSize(size float64) {
 	// Re-use FontFace.
 	if textFace, ok := w.face.(*text.GoTextFace); ok {
 		txt := *textFace
