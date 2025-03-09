@@ -593,24 +593,27 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 		}
 	}
 
-	if !skipWidth {
-		if n.Width != "" {
-			nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
-			if ws, ok := n.Widget.(assigners.Width); ok {
-				ws.AssignWidth(nodeWidth)
-			}
-			n.width = nodeWidth
-		}
+	if !skipWidth && n.Width != "" {
+		nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
 	}
-	if !skipHeight {
-		if n.Height != "" {
-			nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
-			if hs, ok := n.Widget.(assigners.Height); ok {
-				hs.AssignHeight(nodeHeight)
-			}
-			n.height = nodeHeight
-		}
+	if !skipHeight && n.Height != "" {
+		nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
 	}
+
+	// Allow the widget to layout its final size.
+	if lw, ok := n.Widget.(LayoutWidget); ok {
+		nodeWidth, nodeHeight = lw.Layout(nodeWidth, nodeHeight)
+	}
+	// And then assign it.
+	if wa, ok := n.Widget.(assigners.Width); ok {
+		wa.AssignWidth(nodeWidth)
+	}
+	if ha, ok := n.Widget.(assigners.Height); ok {
+		ha.AssignHeight(nodeHeight)
+	}
+
+	n.width = nodeWidth
+	n.height = nodeHeight
 
 	// Check if X has changed by comparing any user-set value to our stored node value.
 	var skipX bool

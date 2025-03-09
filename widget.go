@@ -12,6 +12,12 @@ type Widget interface {
 	Draw(*ebiten.Image, *ebiten.DrawImageOptions)
 }
 
+// LayoutWidget is an optional interface that widgets can implement to allow for changing their size.
+type LayoutWidget interface {
+	Widget
+	Layout(width, height float64) (float64, float64)
+}
+
 // AssignerBackgroundColor is an alias.
 type AssignerBackgroundColor = assigners.BackgroundColor
 
