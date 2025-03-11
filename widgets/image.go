@@ -11,7 +11,7 @@ import (
 
 type Image struct {
 	Basic
-	scale       rebui.ImageScale
+	scale       rebui.ImageStretch
 	image       *ebiten.Image
 	valign      rebui.Alignment
 	halign      rebui.Alignment
@@ -22,7 +22,7 @@ func (w *Image) AssignImage(image *ebiten.Image) {
 	w.image = image
 }
 
-func (w *Image) AssignImageScale(scale rebui.ImageScale) {
+func (w *Image) AssignImageStretch(scale rebui.ImageStretch) {
 	w.scale = scale
 }
 
@@ -46,11 +46,11 @@ func (w *Image) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 		sw, sh := float64(w.Width), float64(w.Height)
 
 		switch w.scale {
-		case rebui.ImageScaleFill:
+		case rebui.ImageStretchFill:
 			op.GeoM.Scale(sw/iw, sh/ih)
 			iw *= sw / iw
 			ih *= sh / ih
-		case rebui.ImageScaleCover:
+		case rebui.ImageStretchCover:
 			if iw < ih {
 				op.GeoM.Scale(sh/ih, sh/ih)
 				iw *= sh / ih
@@ -60,7 +60,7 @@ func (w *Image) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 				iw *= sw / iw
 				ih *= sw / iw
 			}
-		case rebui.ImageScaleNearest:
+		case rebui.ImageStretchNearest:
 			scale := math.Floor(sw / iw)
 			if sh/ih < scale {
 				scale = math.Floor(sh / ih)

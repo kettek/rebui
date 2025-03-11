@@ -25,13 +25,13 @@ const (
 	WrapRune = style.Rune
 )
 
-// ImageScale is a type alias for style.ImageScale.
-type ImageScale = style.ImageScale
+// ImageStretch is a type alias for style.ImageStretch.
+type ImageStretch = style.ImageStretch
 
 // Our image scaling types. See style package for more info.
 const (
-	ImageScaleNone    = style.None
-	ImageScaleFill    = style.Fill
-	ImageScaleCover   = style.Cover
-	ImageScaleNearest = style.Nearest
+	ImageStretchNone    = style.None
+	ImageStretchFill    = style.Fill
+	ImageStretchCover   = style.Cover
+	ImageStretchNearest = style.Nearest
 )

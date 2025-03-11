@@ -22,7 +22,7 @@
     "Height": "100% of image1",
     "VerticalAlign": "middle",
     "HorizontalAlign": "center",
-    "ImageScale": "cover",
+    "ImageStretch": "cover",
     "Image": "image.png"
   },
   {
@@ -33,7 +33,7 @@
     "Height": "100% of image1",
     "VerticalAlign": "middle",
     "HorizontalAlign": "center",
-    "ImageScale": "fill",
+    "ImageStretch": "fill",
     "Image": "image.png"
   },
   {
@@ -44,7 +44,7 @@
     "Height": "100% of image1",
     "VerticalAlign": "middle",
     "HorizontalAlign": "center",
-    "ImageScale": "nearest",
+    "ImageStretch": "nearest",
     "Image": "image.png"
   }
 ]

@@ -45,8 +45,8 @@ type AssignerFontFace = assigners.FontFace
 // AssignerFontSize is an alias.
 type AssignerFontSize = assigners.FontSize
 
-// AssignerImageScale is an alias.
-type AssignerImageScale = assigners.ImageScale
+// AssignerImageStretch is an alias.
+type AssignerImageStretch = assigners.ImageStretch
 
 // AssignerImage is an alias.
 type AssignerImage = assigners.Image

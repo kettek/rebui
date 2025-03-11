@@ -53,9 +53,9 @@ type FontSize interface {
 	AssignFontSize(float64)
 }
 
-// ImageScale is used to set the image scale style of the given element.
-type ImageScale interface {
-	AssignImageScale(style.ImageScale)
+// ImageStretch is used to set the image stretch style of the given element.
+type ImageStretch interface {
+	AssignImageStretch(style.ImageStretch)
 }
 
 // Image is used to set the image of the given element.

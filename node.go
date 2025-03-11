@@ -24,7 +24,7 @@ type Node struct {
 	BorderColor     string
 	VerticalAlign   Alignment
 	HorizontalAlign Alignment
-	ImageScale      ImageScale
+	ImageStretch    ImageStretch
 	Image           string // ???
 	FocusIndex      int
 	nodeHooks

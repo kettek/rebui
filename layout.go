@@ -558,8 +558,8 @@ func (l *Layout) generateNode(n *Node) {
 					}
 				}
 			}
-			if is, ok := n.Widget.(assigners.ImageScale); ok {
-				is.AssignImageScale(n.ImageScale)
+			if is, ok := n.Widget.(assigners.ImageStretch); ok {
+				is.AssignImageStretch(n.ImageStretch)
 			}
 			if is, ok := n.Widget.(assigners.Image); ok {
 				img, err := LoadImage(n.Image)
