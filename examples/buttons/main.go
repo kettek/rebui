@@ -56,10 +56,12 @@ type MyButton struct {
 }
 
 func (b *MyButton) HandlePointerIn(e rebui.EventPointerIn) {
+	b.Button.HandlePointerIn(e) // For default hover behavior
 	fmt.Println("PointerIn", e)
 }
 
 func (b *MyButton) HandlePointerOut(e rebui.EventPointerOut) {
+	b.Button.HandlePointerOut(e) // For default hover behavior
 	fmt.Println("PointerOut", e)
 }
 
@@ -68,14 +70,17 @@ func (b *MyButton) HandlePointerMove(e rebui.EventPointerMove) {
 }
 
 func (b *MyButton) HandlePointerPress(e rebui.EventPointerPress) {
+	b.Button.HandlePointerPress(e)
 	fmt.Println("PointerPress", e)
 }
 
 func (b *MyButton) HandlePointerRelease(e rebui.EventPointerRelease) {
+	b.Button.HandlePointerRelease(e)
 	fmt.Println("Release", e)
 }
 
 func (b *MyButton) HandlePointerPressed(e rebui.EventPointerPressed) {
+	b.Button.HandlePointerPressed(e)
 	fmt.Println("Pressed", e)
 }
 

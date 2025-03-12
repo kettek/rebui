@@ -8,21 +8,25 @@ import (
 
 // Theme is a collection of defaults for how elements should be rendered.
 type Theme struct {
-	BackgroundColor   color.Color
-	ForegroundColor   color.Color
-	BorderColor       color.Color
-	ActiveBorderColor color.Color
-	FontFace          text.Face
+	BackgroundColor color.Color
+	ForegroundColor color.Color
+	BorderColor     color.Color
+
+	ActiveBackgroundColor color.Color
+	ActiveForegroundColor color.Color
+	ActiveBorderColor     color.Color
+
+	HoverBackgroundColor color.Color
+	HoverForegroundColor color.Color
+	HoverBorderColor     color.Color
+
+	FontFace text.Face
 }
 
 // NewTheme makes a new theme, wow.
 func NewTheme() *Theme {
 	return &Theme{
-		BackgroundColor:   color.RGBA{0, 0, 0, 0},
-		ForegroundColor:   color.RGBA{0, 0, 0, 0},
-		ActiveBorderColor: color.RGBA{0, 0, 0, 0},
-		BorderColor:       color.RGBA{0, 0, 0, 0},
-		FontFace:          defaultFontFace,
+		FontFace: defaultFontFace,
 	}
 }
 
@@ -47,5 +51,12 @@ func init() {
 	DefaultTheme.BackgroundColor = color.RGBA{96, 96, 96, 255}
 	DefaultTheme.ForegroundColor = color.RGBA{200, 200, 200, 255}
 	DefaultTheme.BorderColor = color.RGBA{150, 150, 150, 255}
-	DefaultTheme.ActiveBorderColor = color.RGBA{255, 255, 0, 255}
+
+	DefaultTheme.ActiveBackgroundColor = color.RGBA{160, 160, 160, 255}
+	DefaultTheme.ActiveForegroundColor = color.RGBA{255, 255, 255, 255}
+	DefaultTheme.ActiveBorderColor = color.RGBA{255, 255, 255, 255}
+
+	DefaultTheme.HoverBackgroundColor = color.RGBA{128, 128, 128, 255}
+	DefaultTheme.HoverForegroundColor = color.RGBA{255, 255, 255, 255}
+	DefaultTheme.HoverBorderColor = color.RGBA{200, 200, 200, 255}
 }
