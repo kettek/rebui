@@ -20,6 +20,8 @@ type Theme struct {
 	HoverForegroundColor color.Color
 	HoverBorderColor     color.Color
 
+	Padding int
+
 	FontFace text.Face
 }
 
@@ -59,4 +61,6 @@ func init() {
 	DefaultTheme.HoverBackgroundColor = color.RGBA{128, 128, 128, 255}
 	DefaultTheme.HoverForegroundColor = color.RGBA{255, 255, 255, 255}
 	DefaultTheme.HoverBorderColor = color.RGBA{200, 200, 200, 255}
+
+	DefaultTheme.Padding = 4
 }
