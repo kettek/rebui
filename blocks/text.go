@@ -12,6 +12,7 @@ type Text struct {
 	Text   string
 }
 
+// FromText creates a slice of Blocks from a provided string.
 func FromText(txt string, cfg Config) []Block {
 	var blocks []Block
 
