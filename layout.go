@@ -117,6 +117,17 @@ func (l *Layout) AddNode(n Node) *Node {
 	return l.Nodes[len(l.Nodes)-1]
 }
 
+// RemoveNode removes the given node from the layout.
+func (l *Layout) RemoveNode(n *Node) {
+	for i, node := range l.Nodes {
+		if node == n {
+			l.Nodes = append(l.Nodes[:i], l.Nodes[i+1:]...)
+			l.relayout = true
+			return
+		}
+	}
+}
+
 func (l *Layout) getCursor() (x, y int) {
 	if l.RenderTarget != nil {
 		w, h := l.RenderTarget.Bounds().Dx(), l.RenderTarget.Bounds().Dy()
