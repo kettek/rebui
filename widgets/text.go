@@ -17,6 +17,7 @@ type Text struct {
 	text            string
 	face            text.Face
 	foregroundColor color.Color
+	backgroundColor color.Color
 	borderColor     color.Color
 	valign          rebui.Alignment
 	halign          rebui.Alignment
@@ -24,6 +25,10 @@ type Text struct {
 
 func (w *Text) AssignBorderColor(clr color.Color) {
 	w.borderColor = clr
+}
+
+func (w *Text) AssignBackgroundColor(clr color.Color) {
+	w.backgroundColor = clr
 }
 
 func (w *Text) AssignTextWrap(wrap rebui.Wrap) {
@@ -73,6 +78,10 @@ func (w *Text) AssignFontSize(size float64) {
 func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	x := sop.GeoM.Element(0, 2)
 	y := sop.GeoM.Element(1, 2)
+
+	if w.backgroundColor != nil {
+		vector.DrawFilledRect(screen, float32(x), float32(y), float32(w.Width), float32(w.Height), w.backgroundColor, false)
+	}
 
 	w.Layout() // for now.
 	tx, ty := 0.0, 0.0
