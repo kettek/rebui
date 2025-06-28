@@ -518,6 +518,14 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 	}
 }
 
+// HasEvents returns if there are any active events like a mouse press,
+func (l *Layout) HasEvents() bool {
+	if len(l.currentState.hoveredNodes) > 0 || len(l.currentState.pressedNodes) > 0 || len(l.pressedKeys) > 0 || len(l.activeTouches) > 0 || len(l.pressedMouseButtons) > 0 {
+		return true
+	}
+	return false
+}
+
 func (l *Layout) generateNode(n *Node) {
 	// Might as well prevent re-generation.
 	if n.Widget != nil {
