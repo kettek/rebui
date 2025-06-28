@@ -526,6 +526,16 @@ func (l *Layout) HasEvents() bool {
 	return false
 }
 
+// ClearEvents clears all events that have been processed, such as pointer presses, key presses, etc.
+func (l *Layout) ClearEvents() {
+	l.currentState.hoveredNodes = nil
+	l.currentState.pressedNodes = nil
+	l.pressedKeys = nil
+	l.activeTouches = nil
+	l.pressedMouseButtons = nil
+	l.focusedNode = nil
+}
+
 func (l *Layout) generateNode(n *Node) {
 	// Might as well prevent re-generation.
 	if n.Widget != nil {
