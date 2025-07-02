@@ -171,6 +171,9 @@ func (w *TextInput) HandlePointerPress(evt rebui.EventPointerPress) {
 }
 
 func (w *TextInput) getTextIndex(x float64) int {
+	if len(w.text) == 0 {
+		return 0
+	}
 	// This seems awful, but I can't think of a more reliable way to fetch such information.
 	for i := range w.text {
 		width, _ := text.Measure(w.text[:i], w.face, 0)
