@@ -29,7 +29,7 @@ type Layout struct {
 	Nodes         []*Node
 	currentState  currentState
 	//
-	relayout            bool
+	noRelayout          bool // If the layout should not redo its layout. This is a negatively named field so the '0' value means we should relayout.
 	pressedKeys         []key
 	pressedMouseButtons []mouse
 	activeTouches       []touch
@@ -99,7 +99,7 @@ func (l *Layout) Generate() {
 	for _, n := range l.Nodes {
 		l.generateNode(n)
 	}
-	l.relayout = true
+	l.noRelayout = false
 }
 
 // Layout repositions all nodes.
@@ -113,7 +113,7 @@ func (l *Layout) Layout(ow, oh float64) {
 func (l *Layout) AddNode(n Node) *Node {
 	l.Nodes = append(l.Nodes, &n)
 	l.generateNode(&n)
-	l.relayout = true
+	l.noRelayout = false
 	return l.Nodes[len(l.Nodes)-1]
 }
 
@@ -122,7 +122,7 @@ func (l *Layout) RemoveNode(n *Node) {
 	for i, node := range l.Nodes {
 		if node == n {
 			l.Nodes = append(l.Nodes[:i], l.Nodes[i+1:]...)
-			l.relayout = true
+			l.noRelayout = false
 			return
 		}
 	}
@@ -470,10 +470,10 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 
 // Update collects evts and propagates them to the contained Widgets.
 func (l *Layout) Update() {
-	if l.relayout {
+	if !l.noRelayout {
 		w, h := l.getSize()
 		l.Layout(float64(w), float64(h))
-		l.relayout = false
+		l.noRelayout = true
 	}
 
 	// TODO: Allow passing in a block evts list, where various event types can be prevented from occurring -- this might come in use.
@@ -497,7 +497,14 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 	if l.lastWidth != float64(screen.Bounds().Dx()) || l.lastHeight != float64(screen.Bounds().Dy()) {
 		l.lastWidth = float64(screen.Bounds().Dx())
 		l.lastHeight = float64(screen.Bounds().Dy())
-		l.relayout = true
+		l.noRelayout = false
+	}
+
+	// It might be unwise here to relayout in draw, but in some rare instances it can cause issues due to Ebitengine update/draw timings.
+	if !l.noRelayout {
+		w, h := l.getSize()
+		l.Layout(float64(w), float64(h))
+		l.noRelayout = true
 	}
 
 	for _, n := range l.Nodes {
