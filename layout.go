@@ -111,8 +111,9 @@ func (l *Layout) Layout(ow, oh float64) {
 
 // AddNode adds the given node and generates it.
 func (l *Layout) AddNode(n Node) *Node {
-	l.Nodes = append(l.Nodes, &n)
-	l.generateNode(&n)
+	n2 := copyNode(n)
+	l.Nodes = append(l.Nodes, &n2)
+	l.generateNode(&n2)
 	l.noRelayout = false
 	return l.Nodes[len(l.Nodes)-1]
 }

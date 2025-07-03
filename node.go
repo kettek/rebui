@@ -30,6 +30,12 @@ type Node struct {
 	nodeHooks
 }
 
+func copyNode(n Node) Node {
+	var n2 Node
+	n2 = n
+	return n2
+}
+
 type nodeHooks struct {
 	OnPointerIn            func(EventPointerIn)
 	OnPointerOut           func(EventPointerOut)
