@@ -33,6 +33,7 @@ type Node struct {
 func copyNode(n Node) Node {
 	var n2 Node
 	n2 = n
+	n.Widget = nil // Ensure widget is nil, as we use that to determine if we should create the underlying widget.
 	return n2
 }
 
