@@ -562,6 +562,10 @@ func (l *Layout) generateNode(n *Node) {
 			if bcs, ok := n.Widget.(assigners.BorderColor); ok {
 				bcs.AssignBorderColor(stringToColor(n.BorderColor, style.CurrentTheme().BorderColor))
 			}
+			if bcs, ok := n.Widget.(assigners.BorderWidth); ok {
+				bcs.AssignBorderWidth(fallback(stringToFloat(n.BorderWidth), style.CurrentTheme().BorderWidth))
+			}
+
 			if vas, ok := n.Widget.(assigners.VerticalAlignment); ok {
 				vas.AssignVerticalAlignment(n.VerticalAlign)
 			}
@@ -956,6 +960,18 @@ func (l *Layout) processEvent(e Event) {
 		}
 	}
 
+}
+
+func fallback[T comparable](a, b T) T {
+	if *new(T) == a {
+		return b
+	}
+	return a
+}
+
+func stringToFloat(s string) float64 {
+	v, _ := strconv.ParseFloat(s, 64)
+	return v
 }
 
 func stringToColor(s string, fallback color.Color) color.Color {

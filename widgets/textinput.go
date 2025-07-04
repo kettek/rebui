@@ -13,6 +13,7 @@ import (
 
 type TextInput struct {
 	Label
+	Border
 	text            string
 	canvas          *ebiten.Image
 	cursor          int
@@ -24,7 +25,6 @@ type TextInput struct {
 	selectStart     int
 	selectEnd       int
 	ScrollX         float64
-	borderColor     color.Color
 	backgroundColor color.Color
 	OnChange        func(string)
 	OnSubmit        func(string)
@@ -71,10 +71,6 @@ func (w *TextInput) AssignForegroundColor(clr color.Color) {
 
 func (w *TextInput) AssignBackgroundColor(clr color.Color) {
 	w.backgroundColor = clr
-}
-
-func (w *TextInput) AssignBorderColor(clr color.Color) {
-	w.borderColor = clr
 }
 
 func (w *TextInput) refreshCanvas() {
@@ -153,7 +149,7 @@ func (w *TextInput) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 		}
 	}
 
-	vector.StrokeRect(screen, float32(x), float32(y), float32(w.Width), float32(w.Height), 1, w.borderColor, false)
+	w.drawBorder(screen, float32(x), float32(y), float32(w.Width), float32(w.Height))
 }
 
 func (w *TextInput) HandleFocus(evt rebui.EventFocus) {

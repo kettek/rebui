@@ -19,3 +19,8 @@ type X interface {
 type Y interface {
 	GetY() float64
 }
+
+// BorderWidth is an interface for getting the border width of an element.
+type BorderWidth interface {
+	GetBorderWidth() float64
+}

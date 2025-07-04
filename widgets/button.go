@@ -10,16 +10,12 @@ import (
 
 type Button struct {
 	Label
+	Border
 	backgroundColor color.Color
-	borderColor     color.Color
 }
 
 func (b *Button) AssignBackgroundColor(clr color.Color) {
 	b.backgroundColor = clr
-}
-
-func (b *Button) AssignBorderColor(clr color.Color) {
-	b.borderColor = clr
 }
 
 func (b *Button) HandlePointerIn(evt rebui.EventPointerIn) {
@@ -57,7 +53,7 @@ func (b *Button) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	y := sop.GeoM.Element(1, 2)
 
 	vector.DrawFilledRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), b.backgroundColor, true)
-	vector.StrokeRect(screen, float32(x), float32(y), float32(b.Width), float32(b.Height), 1, b.borderColor, false)
+	b.drawBorder(screen, float32(x), float32(y), float32(b.Width), float32(b.Height))
 
 	b.Label.Draw(screen, sop)
 }

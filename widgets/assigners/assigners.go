@@ -23,6 +23,11 @@ type BorderColor interface {
 	AssignBorderColor(color.Color)
 }
 
+// BorderWidth is used to set the border width of the given element.
+type BorderWidth interface {
+	AssignBorderWidth(float64)
+}
+
 // VerticalAlignment is used to set the vertical alignment of the given element.
 type VerticalAlignment interface {
 	AssignVerticalAlignment(style.Alignment)

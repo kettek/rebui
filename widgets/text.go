@@ -12,19 +12,15 @@ import (
 
 type Text struct {
 	Basic
+	Border
 	blocks          []blocks.Block
 	wrap            rebui.Wrap
 	text            string
 	face            text.Face
 	foregroundColor color.Color
 	backgroundColor color.Color
-	borderColor     color.Color
 	valign          rebui.Alignment
 	halign          rebui.Alignment
-}
-
-func (w *Text) AssignBorderColor(clr color.Color) {
-	w.borderColor = clr
 }
 
 func (w *Text) AssignBackgroundColor(clr color.Color) {
@@ -175,9 +171,7 @@ func (w *Text) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 		}
 	}
 
-	if w.borderColor != nil {
-		vector.StrokeRect(screen, float32(x), float32(y), float32(w.Width), float32(w.Height), 1, w.borderColor, false)
-	}
+	w.drawBorder(screen, float32(x), float32(y), float32(w.Width), float32(w.Height))
 }
 
 func init() {

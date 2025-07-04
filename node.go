@@ -22,6 +22,7 @@ type Node struct {
 	BackgroundColor string
 	ForegroundColor string
 	BorderColor     string
+	BorderWidth     string
 	VerticalAlign   Alignment
 	HorizontalAlign Alignment
 	ImageStretch    ImageStretch

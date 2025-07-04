@@ -1,21 +1,19 @@
 package widgets
 
 import (
-	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/kettek/rebui"
 )
 
 type Image struct {
 	Basic
-	scale       rebui.ImageStretch
-	image       *ebiten.Image
-	valign      rebui.Alignment
-	halign      rebui.Alignment
-	borderColor color.Color
+	Border
+	scale  rebui.ImageStretch
+	image  *ebiten.Image
+	valign rebui.Alignment
+	halign rebui.Alignment
 }
 
 func (w *Image) AssignImage(image *ebiten.Image) {
@@ -32,10 +30,6 @@ func (w *Image) AssignVerticalAlignment(align rebui.Alignment) {
 
 func (w *Image) AssignHorizontalAlignment(align rebui.Alignment) {
 	w.halign = align
-}
-
-func (w *Image) AssignBorderColor(clr color.Color) {
-	w.borderColor = clr
 }
 
 func (w *Image) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
@@ -94,7 +88,7 @@ func (w *Image) Draw(screen *ebiten.Image, sop *ebiten.DrawImageOptions) {
 	if w.borderColor != nil {
 		x := sop.GeoM.Element(0, 2)
 		y := sop.GeoM.Element(1, 2)
-		vector.StrokeRect(screen, float32(x), float32(y), float32(w.Width), float32(w.Height), 1, w.borderColor, false)
+		w.drawBorder(screen, float32(x), float32(y), float32(w.Width), float32(w.Height))
 	}
 }
 

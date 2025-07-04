@@ -11,6 +11,7 @@ type Theme struct {
 	BackgroundColor color.Color
 	ForegroundColor color.Color
 	BorderColor     color.Color
+	BorderWidth     float64
 
 	ActiveBackgroundColor color.Color
 	ActiveForegroundColor color.Color
@@ -53,6 +54,7 @@ func init() {
 	DefaultTheme.BackgroundColor = color.RGBA{96, 96, 96, 255}
 	DefaultTheme.ForegroundColor = color.RGBA{200, 200, 200, 255}
 	DefaultTheme.BorderColor = color.RGBA{150, 150, 150, 255}
+	DefaultTheme.BorderWidth = 1
 
 	DefaultTheme.ActiveBackgroundColor = color.RGBA{160, 160, 160, 255}
 	DefaultTheme.ActiveForegroundColor = color.RGBA{255, 255, 255, 255}
