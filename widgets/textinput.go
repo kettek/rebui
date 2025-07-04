@@ -13,6 +13,7 @@ import (
 
 type TextInput struct {
 	Label
+	text            string
 	canvas          *ebiten.Image
 	cursor          int
 	showCursor      bool
@@ -47,6 +48,7 @@ func (w *TextInput) AssignHeight(height float64) {
 func (w *TextInput) AssignText(text string) {
 	w.selectStart = 0
 	w.selectEnd = 0
+	w.text = text
 	w.Label.AssignText(text)
 	if w.cursor > len(text) {
 		w.cursor = len(text)
