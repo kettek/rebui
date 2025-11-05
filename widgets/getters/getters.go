@@ -20,6 +20,11 @@ type Y interface {
 	GetY() float64
 }
 
+// Obfuscated is an interface for getting the obfuscation state of an element.
+type Obfuscated interface {
+	GetObfuscation() bool
+}
+
 // BorderWidth is an interface for getting the border width of an element.
 type BorderWidth interface {
 	GetBorderWidth() float64

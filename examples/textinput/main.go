@@ -53,6 +53,25 @@ func main() {
 		log.Println("Text submitted:", text)
 	}
 
+	hideNode := g.layout.AddNode(rebui.Node{
+		Type:            "Button",
+		Text:            "hide",
+		Width:           "40",
+		Height:          "30",
+		X:               "50%",
+		Y:               "90",
+		OriginX:         "-50%",
+		OriginY:         "-50%",
+		ForegroundColor: "white",
+		BackgroundColor: "red",
+		BorderColor:     "white",
+		VerticalAlign:   rebui.AlignMiddle,
+		FocusIndex:      2,
+	})
+	hideNode.OnPointerPressed = func(epp rebui.EventPointerPressed) {
+		node.Widget.(*widgets.TextInput).AssignObfuscation(!node.Widget.(*widgets.TextInput).GetObfuscation())
+	}
+
 	ebiten.SetWindowSize(320, 240)
 	ebiten.SetWindowTitle("Layout (Ebiten Demo)")
 

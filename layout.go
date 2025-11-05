@@ -572,6 +572,9 @@ func (l *Layout) generateNode(n *Node) {
 			if has, ok := n.Widget.(assigners.HorizontalAlignment); ok {
 				has.AssignHorizontalAlignment(n.HorizontalAlign)
 			}
+			if os, ok := n.Widget.(assigners.Obfuscate); ok {
+				os.AssignObfuscation(n.Obfuscated)
+			}
 			if ts, ok := n.Widget.(assigners.Text); ok {
 				ts.AssignText(n.Text)
 			}

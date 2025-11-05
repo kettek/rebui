@@ -16,6 +16,7 @@ type Node struct {
 	OriginY         string
 	Text            string
 	TextWrap        Wrap
+	Obfuscated      bool
 	Font            string
 	FontSize        string
 	Widget          Widget `json:"-"`

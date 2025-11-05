@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"image/color"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -31,6 +32,7 @@ type TextInput struct {
 	lastTime        time.Time
 	cursorHidden    bool
 	controlHeld     bool // TODO: Move this to be as part of KeyEvent system.
+	obfuscated      bool
 }
 
 func (w *TextInput) AssignWidth(width float64) {
@@ -49,7 +51,11 @@ func (w *TextInput) AssignText(text string) {
 	w.selectStart = 0
 	w.selectEnd = 0
 	w.text = text
-	w.Label.AssignText(text)
+	if w.obfuscated {
+		w.Label.AssignText(strings.Repeat("*", len(text)))
+	} else {
+		w.Label.AssignText(text)
+	}
 	if w.cursor > len(text) {
 		w.cursor = len(text)
 	}
@@ -71,6 +77,15 @@ func (w *TextInput) AssignForegroundColor(clr color.Color) {
 
 func (w *TextInput) AssignBackgroundColor(clr color.Color) {
 	w.backgroundColor = clr
+}
+
+func (w *TextInput) AssignObfuscation(b bool) {
+	w.obfuscated = b
+	w.AssignText(w.text)
+}
+
+func (w *TextInput) GetObfuscation() bool {
+	return w.obfuscated
 }
 
 func (w *TextInput) refreshCanvas() {
