@@ -26,7 +26,7 @@ type Layout struct {
 	RenderTarget  *ebiten.Image
 	ClampPointers bool
 	generated     bool
-	Nodes         []*Node
+	Nodes         Nodes
 	currentState  currentState
 	//
 	noRelayout          bool // If the layout should not redo its layout. This is a negatively named field so the '0' value means we should relayout.
@@ -62,12 +62,7 @@ type touch struct {
 
 // GetByID returns the given node by its ID.
 func (l *Layout) GetByID(id string) *Node {
-	for _, n := range l.Nodes {
-		if n.ID == id {
-			return n
-		}
-	}
-	return nil
+	return l.Nodes.GetByID(id)
 }
 
 var handlers = make(map[string]Widget)
@@ -96,30 +91,43 @@ func (l *Layout) Parse(src string) error {
 
 // Generate creates proper Widgets from the list of Nodes.
 func (l *Layout) Generate() {
-	for _, n := range l.Nodes {
+	l.Nodes.ForEach(func(n *Node) bool {
 		l.generateNode(n)
-	}
+		return false
+	})
 	l.noRelayout = false
 }
 
 // Layout repositions all nodes.
-func (l *Layout) Layout(ow, oh float64) {
-	for _, n := range l.Nodes {
-		l.layoutNode(n, ow, oh)
+func (l *Layout) Layout(ox, oy, ow, oh float64) {
+	l.layoutNodes(l.Nodes, ox, oy, ow, oh)
+}
+
+func (l *Layout) layoutNodes(ns Nodes, ox, oy, ow, oh float64) {
+	for _, n := range ns {
+		l.layoutNode(n, ox, oy, ow, oh)
+		// Now iterate the children.
+		l.layoutNodes(n.Children, n.x, n.y, n.width, n.height)
 	}
 }
 
 // AddNode adds the given node and generates it.
 func (l *Layout) AddNode(n Node) *Node {
+	// TODO: Add/Use children aware Nodes func
 	n2 := copyNode(n)
 	l.Nodes = append(l.Nodes, &n2)
 	l.generateNode(&n2)
+	n2.Children.ForEach(func(n *Node) bool {
+		l.generateNode(n)
+		return false
+	})
 	l.noRelayout = false
 	return l.Nodes[len(l.Nodes)-1]
 }
 
 // RemoveNode removes the given node from the layout.
 func (l *Layout) RemoveNode(n *Node) {
+	// TODO: Add/Use children aware Nodes func
 	for i, node := range l.Nodes {
 		if node == n {
 			l.Nodes = append(l.Nodes[:i], l.Nodes[i+1:]...)
@@ -219,7 +227,7 @@ func (l *Layout) getMouseEvents() (evts []Event) {
 
 	// Alright, let's convert them to pointer evts.
 	for _, mb := range newPressedMouseButtons {
-		evts = append(evts, events.PointerPress{
+		evts = append(evts, &events.PointerPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Pointer: events.Pointer{
 				X:        float64(x),
@@ -232,7 +240,7 @@ func (l *Layout) getMouseEvents() (evts []Event) {
 	}
 
 	for _, mb := range releasedMouseButtons {
-		evts = append(evts, events.PointerRelease{
+		evts = append(evts, &events.PointerRelease{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Duration:  events.Duration{Duration: ts.Sub(mb.time)},
 			Pointer: events.Pointer{
@@ -247,7 +255,7 @@ func (l *Layout) getMouseEvents() (evts []Event) {
 
 	if deltaX != 0 || deltaY != 0 {
 		for _, mb := range oldPressedMouseButtons {
-			evts = append(evts, events.PointerMove{
+			evts = append(evts, &events.PointerMove{
 				Timestamp: events.Timestamp{Timestamp: ts},
 				Duration:  events.Duration{Duration: ts.Sub(mb.time)},
 				Pointer: events.Pointer{
@@ -260,7 +268,7 @@ func (l *Layout) getMouseEvents() (evts []Event) {
 			})
 		}
 		// And have an event for no pointer (-1)
-		evts = append(evts, events.PointerMove{
+		evts = append(evts, &events.PointerMove{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Pointer: events.Pointer{
 				X:        float64(x),
@@ -338,7 +346,7 @@ func (l *Layout) getTouchEvents() (evts []Event) {
 
 	// Convert to events.
 	for _, t := range newTouches {
-		evts = append(evts, events.PointerPress{
+		evts = append(evts, &events.PointerPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Pointer: events.Pointer{
 				X:       float64(t.x),
@@ -351,7 +359,7 @@ func (l *Layout) getTouchEvents() (evts []Event) {
 	}
 
 	for _, t := range releasedTouches {
-		evts = append(evts, events.PointerRelease{
+		evts = append(evts, &events.PointerRelease{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Duration:  events.Duration{Duration: ts.Sub(t.time)},
 			Pointer: events.Pointer{
@@ -366,7 +374,7 @@ func (l *Layout) getTouchEvents() (evts []Event) {
 
 	for _, t := range oldTouches {
 		if t.deltaX != 0 || t.deltaY != 0 {
-			evts = append(evts, events.PointerMove{
+			evts = append(evts, &events.PointerMove{
 				Timestamp: events.Timestamp{Timestamp: ts},
 				Duration:  events.Duration{Duration: ts.Sub(t.time)},
 				Pointer: events.Pointer{
@@ -435,13 +443,13 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 		}
 	}
 	for _, k := range newPressedKeys {
-		evts = append(evts, events.KeyPress{
+		evts = append(evts, &events.KeyPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Key:       k.key,
 		})
 	}
 	for _, k := range releasedKeys {
-		evts = append(evts, events.KeyRelease{
+		evts = append(evts, &events.KeyRelease{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Key:       k.key,
 			Duration:  events.Duration{Duration: ts.Sub(k.time)},
@@ -449,7 +457,7 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 	}
 
 	for _, k := range repeatKeys {
-		evts = append(evts, events.KeyPress{
+		evts = append(evts, &events.KeyPress{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Key:       k.key,
 			Repeat:    k.count,
@@ -458,7 +466,7 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 
 	// Also handle input chars. AFAIK we shouldn't handle the whole key press logic with input chars.
 	for _, k := range ebiten.AppendInputChars(nil) {
-		evts = append(evts, events.KeyInput{
+		evts = append(evts, &events.KeyInput{
 			Timestamp: events.Timestamp{Timestamp: ts},
 			Rune:      k,
 		})
@@ -473,7 +481,7 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 func (l *Layout) Update() {
 	if !l.noRelayout {
 		w, h := l.getSize()
-		l.Layout(float64(w), float64(h))
+		l.Layout(0, 0, float64(w), float64(h))
 		l.noRelayout = true
 	}
 
@@ -481,12 +489,13 @@ func (l *Layout) Update() {
 	if evts := l.getEvents(); len(evts) > 0 {
 		for _, e := range evts {
 			// Iterate our nodes...
-			for _, n := range l.Nodes {
+			l.Nodes.ForEachDeepest(func(n *Node) bool {
 				l.processNodeEvent(n, e)
 				if ec, ok := e.(EventCancelable); ok && ec.Canceled() {
-					break
+					return true
 				}
-			}
+				return false
+			})
 			l.processEvent(e)
 		}
 	}
@@ -504,11 +513,11 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 	// It might be unwise here to relayout in draw, but in some rare instances it can cause issues due to Ebitengine update/draw timings.
 	if !l.noRelayout {
 		w, h := l.getSize()
-		l.Layout(float64(w), float64(h))
+		l.Layout(0, 0, float64(w), float64(h))
 		l.noRelayout = true
 	}
 
-	for _, n := range l.Nodes {
+	l.Nodes.ForEach(func(n *Node) bool {
 		op := &ebiten.DrawImageOptions{}
 		if n.Widget != nil {
 			if xg, ok := n.Widget.(getters.X); ok {
@@ -523,7 +532,8 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 			}
 			n.Widget.Draw(l.RenderTarget, op)
 		}
-	}
+		return false
+	})
 }
 
 // HasEvents returns if there are any active events like a mouse press,
@@ -615,10 +625,14 @@ func (l *Layout) generateNode(n *Node) {
 			}
 		}
 	}
+	// Ensure parent<->child relationships.
+	for _, n2 := range n.Children {
+		n2.Parent = n
+	}
 }
 
 // layoutNode sets the node's various positions and sizings based upon the containing outer width and height.
-func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
+func (l *Layout) layoutNode(n *Node, outerX, outerY, outerWidth, outerHeight float64) {
 	nodeWidth := outerWidth
 	nodeHeight := outerHeight
 	nodeX := 0.0
@@ -682,9 +696,9 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 		if n.X != "" {
 			nodeX = stringToPosition(l, n.X, outerWidth, false)
 			if xs, ok := n.Widget.(assigners.X); ok {
-				xs.AssignX(nodeX + originX)
+				xs.AssignX(outerX + nodeX + originX)
 			}
-			n.x = nodeX + originX
+			n.x = outerX + nodeX + originX
 		}
 	}
 	if !skipY {
@@ -695,9 +709,9 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 		if n.Y != "" {
 			nodeY = stringToPosition(l, n.Y, outerHeight, true)
 			if ys, ok := n.Widget.(assigners.Y); ok {
-				ys.AssignY(nodeY + originY)
+				ys.AssignY(outerY + nodeY + originY)
 			}
-			n.y = nodeY + originY
+			n.y = outerY + nodeY + originY
 		}
 	}
 }
@@ -705,7 +719,7 @@ func (l *Layout) layoutNode(n *Node, outerWidth, outerHeight float64) {
 func (l *Layout) processNodeEvent(n *Node, e Event) {
 	if hit, ok := n.Widget.(HitChecker); ok {
 		switch evt := e.(type) {
-		case events.PointerMove:
+		case *events.PointerMove:
 			if hit.Hit(evt.X, evt.Y) {
 				evt.Widget = n.Widget
 				if gx, ok := n.Widget.(getters.X); ok {
@@ -715,42 +729,42 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 					evt.RelativeY = evt.Y - gy.GetY()
 				}
 				if n.OnPointerMove != nil {
-					n.OnPointerMove(&evt)
+					n.OnPointerMove(evt)
 				}
 				if hmove, ok := n.Widget.(receivers.PointerMove); ok {
-					hmove.HandlePointerMove(&evt)
+					hmove.HandlePointerMove(evt)
 				}
 				if !l.currentState.isHovered(n) {
-					pointerInEvent := events.PointerIn{
+					pointerInEvent := &events.PointerIn{
 						TargetWidget: events.TargetWidget{Widget: n.Widget},
 						Timestamp:    evt.Timestamp,
 						Pointer:      evt.Pointer,
 					}
 					if n.OnPointerIn != nil {
-						n.OnPointerIn(&pointerInEvent)
+						n.OnPointerIn(pointerInEvent)
 					}
 					if hin, ok := n.Widget.(receivers.PointerIn); ok {
-						hin.HandlePointerIn(&pointerInEvent)
+						hin.HandlePointerIn(pointerInEvent)
 					}
 					l.currentState.addHovered(n)
 				}
 			} else {
 				if l.currentState.isHovered(n) {
-					pointerOutEvent := events.PointerOut{
+					pointerOutEvent := &events.PointerOut{
 						TargetWidget: events.TargetWidget{Widget: n.Widget},
 						Timestamp:    evt.Timestamp,
 						Pointer:      evt.Pointer,
 					}
 					if n.OnPointerOut != nil {
-						n.OnPointerOut(&pointerOutEvent)
+						n.OnPointerOut(pointerOutEvent)
 					}
 					if hout, ok := n.Widget.(receivers.PointerOut); ok {
-						hout.HandlePointerOut(&pointerOutEvent)
+						hout.HandlePointerOut(pointerOutEvent)
 					}
 					l.currentState.removeHovered(n)
 				}
 			}
-		case events.PointerPress:
+		case *events.PointerPress:
 			if hit.Hit(evt.X, evt.Y) {
 				pid := -1
 				if evt.TouchID > 0 { // I hope touches can't be 0...
@@ -766,39 +780,39 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 					evt.RelativeY = evt.Y - gy.GetY()
 				}
 				if n.OnPointerPress != nil {
-					n.OnPointerPress(&evt)
+					n.OnPointerPress(evt)
 				}
 				if hpress, ok := n.Widget.(receivers.PointerPress); ok {
-					hpress.HandlePointerPress(&evt)
+					hpress.HandlePointerPress(evt)
 				}
 				if !l.currentState.isPressed(n, pid) {
 					l.currentState.addPressed(n, pid)
 				}
 				// Focus node on pointer press -- do we want to limit focused to only first or last node receiving a pointer press?
 				if l.focusedNode != nil && l.focusedNode != n {
-					unfocusEvent := events.Unfocus{
+					unfocusEvent := &events.Unfocus{
 						TargetWidget: events.TargetWidget{Widget: l.focusedNode.Widget},
 						Timestamp:    evt.Timestamp,
 					}
 					if l.focusedNode.OnUnfocus != nil {
-						l.focusedNode.OnUnfocus(&unfocusEvent)
+						l.focusedNode.OnUnfocus(unfocusEvent)
 					}
 					if hunfocus, ok := l.focusedNode.Widget.(receivers.Unfocus); ok {
-						hunfocus.HandleUnfocus(&unfocusEvent)
+						hunfocus.HandleUnfocus(unfocusEvent)
 					}
 				}
 				if n.FocusIndex > 0 {
 					if l.focusedNode != n {
-						focusEvent := events.Focus{
+						focusEvent := &events.Focus{
 							TargetWidget: events.TargetWidget{Widget: evt.Widget},
 							Timestamp:    evt.Timestamp,
 							Pointer:      evt.Pointer,
 						}
 						if n.OnFocus != nil {
-							n.OnFocus(&focusEvent)
+							n.OnFocus(focusEvent)
 						}
 						if hfocus, ok := n.Widget.(receivers.Focus); ok {
-							hfocus.HandleFocus(&focusEvent)
+							hfocus.HandleFocus(focusEvent)
 						}
 						l.focusedNode = n
 					}
@@ -806,7 +820,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 					l.focusedNode = nil
 				}
 			}
-		case events.PointerRelease:
+		case *events.PointerRelease:
 			if hit.Hit(evt.X, evt.Y) {
 				pid := -1
 				if evt.TouchID > 0 { // I hope touches can't be 0...
@@ -822,24 +836,24 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 					evt.RelativeY = evt.Y - gy.GetY()
 				}
 				if n.OnPointerRelease != nil {
-					n.OnPointerRelease(&evt)
+					n.OnPointerRelease(evt)
 				}
 				if hrelease, ok := n.Widget.(receivers.PointerRelease); ok {
-					hrelease.HandlePointerRelease(&evt)
+					hrelease.HandlePointerRelease(evt)
 				}
 				if l.currentState.isPressed(n, pid) {
 					l.currentState.removePressed(n, pid)
-					pointerPressedEvent := events.PointerPressed{
+					pointerPressedEvent := &events.PointerPressed{
 						TargetWidget: events.TargetWidget{Widget: n.Widget},
 						Duration:     evt.Duration,
 						Timestamp:    evt.Timestamp,
 						Pointer:      evt.Pointer,
 					}
 					if n.OnPointerPressed != nil {
-						n.OnPointerPressed(&pointerPressedEvent)
+						n.OnPointerPressed(pointerPressedEvent)
 					}
 					if hpress, ok := n.Widget.(receivers.PointerPressed); ok {
-						hpress.HandlePointerPressed(&pointerPressedEvent)
+						hpress.HandlePointerPressed(pointerPressedEvent)
 					}
 				}
 			}
@@ -850,7 +864,7 @@ func (l *Layout) processNodeEvent(n *Node, e Event) {
 // processEvent is called after processNodeEvent and does any further handling beyond what the nodes can handle.
 func (l *Layout) processEvent(e Event) {
 	switch evt := e.(type) {
-	case events.PointerPress:
+	case *events.PointerPress:
 		// Unfocus the current focused node if we have a press that does not hit it.
 		if l.focusedNode != nil {
 			if hit, ok := l.focusedNode.Widget.(HitChecker); ok {
@@ -858,20 +872,20 @@ func (l *Layout) processEvent(e Event) {
 					// We hit the focused node, so we don't need to do anything.
 					break
 				}
-				unfocusEvent := events.Unfocus{
+				unfocusEvent := &events.Unfocus{
 					TargetWidget: events.TargetWidget{Widget: l.focusedNode.Widget},
 					Timestamp:    events.Timestamp{Timestamp: time.Now()},
 				}
 				if l.focusedNode.OnUnfocus != nil {
-					l.focusedNode.OnUnfocus(&unfocusEvent)
+					l.focusedNode.OnUnfocus(unfocusEvent)
 				}
 				if hunfocus, ok := l.focusedNode.Widget.(receivers.Unfocus); ok {
-					hunfocus.HandleUnfocus(&unfocusEvent)
+					hunfocus.HandleUnfocus(unfocusEvent)
 				}
 				l.focusedNode = nil
 			}
 		}
-	case events.PointerRelease:
+	case *events.PointerRelease:
 		pid := -1
 		if evt.TouchID > 0 { // I hope touches can't be 0...
 			pid = evt.TouchID
@@ -879,7 +893,7 @@ func (l *Layout) processEvent(e Event) {
 			pid = evt.ButtonID
 		}
 		// Clear out any held releases.
-		for _, n := range l.Nodes {
+		l.Nodes.ForEach(func(n *Node) bool {
 			if l.currentState.isPressed(n, pid) {
 				evt.Widget = n.Widget
 				if gx, ok := n.Widget.(getters.X); ok {
@@ -889,15 +903,16 @@ func (l *Layout) processEvent(e Event) {
 					evt.RelativeY = evt.Y - gy.GetY()
 				}
 				if n.OnPointerGlobalRelease != nil {
-					n.OnPointerGlobalRelease(&evt)
+					n.OnPointerGlobalRelease(evt)
 				}
 				if hrelease, ok := n.Widget.(receivers.PointerGlobalRelease); ok {
-					hrelease.HandlePointerGlobalRelease(&evt)
+					hrelease.HandlePointerGlobalRelease(evt)
 				}
 			}
-		}
+			return false
+		})
 		l.currentState.removePressedID(pid)
-	case events.PointerMove:
+	case *events.PointerMove:
 		pid := -1
 		if evt.TouchID > 0 { // I hope touches can't be 0...
 			pid = evt.TouchID
@@ -905,7 +920,7 @@ func (l *Layout) processEvent(e Event) {
 			pid = evt.ButtonID
 		}
 		// Handle any global move handlers that were pressed.
-		for _, n := range l.Nodes {
+		l.Nodes.ForEach(func(n *Node) bool {
 			evt.Widget = n.Widget
 			if gx, ok := n.Widget.(getters.X); ok {
 				evt.RelativeX = evt.X - gx.GetX()
@@ -915,50 +930,51 @@ func (l *Layout) processEvent(e Event) {
 			}
 			if l.currentState.isPressed(n, pid) {
 				if n.OnPointerGlobalMove != nil {
-					n.OnPointerGlobalMove(&evt)
+					n.OnPointerGlobalMove(evt)
 				}
 				if hmove, ok := n.Widget.(receivers.PointerGlobalMove); ok {
-					hmove.HandlePointerGlobalMove(&evt)
+					hmove.HandlePointerGlobalMove(evt)
 				}
 			}
-		}
-	case events.KeyPress:
+			return false
+		})
+	case *events.KeyPress:
 		if l.focusedNode != nil {
 			evt.Widget = l.focusedNode.Widget
 			if l.focusedNode.OnKeyPress != nil {
-				l.focusedNode.OnKeyPress(&evt)
+				l.focusedNode.OnKeyPress(evt)
 			}
 			if evt.Canceled() {
 				break
 			}
 			if n, ok := l.focusedNode.Widget.(receivers.KeyPress); ok {
-				n.HandleKeyPress(&evt)
+				n.HandleKeyPress(evt)
 			}
 		}
-	case events.KeyRelease:
+	case *events.KeyRelease:
 		if l.focusedNode != nil {
 			evt.Widget = l.focusedNode.Widget
 			if l.focusedNode.OnKeyRelease != nil {
-				l.focusedNode.OnKeyRelease(&evt)
+				l.focusedNode.OnKeyRelease(evt)
 			}
 			if evt.Canceled() {
 				break
 			}
 			if n, ok := l.focusedNode.Widget.(receivers.KeyRelease); ok {
-				n.HandleKeyRelease(&evt)
+				n.HandleKeyRelease(evt)
 			}
 		}
-	case events.KeyInput:
+	case *events.KeyInput:
 		if l.focusedNode != nil {
 			evt.Widget = l.focusedNode.Widget
 			if l.focusedNode.OnKeyInput != nil {
-				l.focusedNode.OnKeyInput(&evt)
+				l.focusedNode.OnKeyInput(evt)
 			}
 			if evt.Canceled() {
 				break
 			}
 			if n, ok := l.focusedNode.Widget.(receivers.KeyInput); ok {
-				n.HandleKeyInput(&evt)
+				n.HandleKeyInput(evt)
 			}
 		}
 	}
