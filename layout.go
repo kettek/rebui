@@ -99,15 +99,20 @@ func (l *Layout) Generate() {
 }
 
 // Layout repositions all nodes.
-func (l *Layout) Layout(ox, oy, ow, oh float64) {
-	l.layoutNodes(l.Nodes, ox, oy, ow, oh)
+func (l *Layout) Layout(ctx LayoutContext) {
+	l.layoutNodes(l.Nodes, ctx)
 }
 
-func (l *Layout) layoutNodes(ns Nodes, ox, oy, ow, oh float64) {
+func (l *Layout) layoutNodes(ns Nodes, ctx LayoutContext) {
 	for _, n := range ns {
-		l.layoutNode(n, ox, oy, ow, oh)
+		l.layoutNode(n, ctx)
 		// Now iterate the children.
-		l.layoutNodes(n.Children, n.x, n.y, n.width, n.height)
+		l.layoutNodes(n.Children, LayoutContext{
+			OuterX:      n.x,
+			OuterY:      n.y,
+			OuterWidth:  n.width,
+			OuterHeight: n.height,
+		})
 	}
 }
 
@@ -481,7 +486,7 @@ func (l *Layout) getKeyEvents() (evts []Event) {
 func (l *Layout) Update() {
 	if !l.noRelayout {
 		w, h := l.getSize()
-		l.Layout(0, 0, float64(w), float64(h))
+		l.Layout(LayoutContext{0, 0, float64(w), float64(h)})
 		l.noRelayout = true
 	}
 
@@ -513,7 +518,7 @@ func (l *Layout) Draw(screen *ebiten.Image) {
 	// It might be unwise here to relayout in draw, but in some rare instances it can cause issues due to Ebitengine update/draw timings.
 	if !l.noRelayout {
 		w, h := l.getSize()
-		l.Layout(0, 0, float64(w), float64(h))
+		l.Layout(LayoutContext{0, 0, float64(w), float64(h)})
 		l.noRelayout = true
 	}
 
@@ -632,9 +637,9 @@ func (l *Layout) generateNode(n *Node) {
 }
 
 // layoutNode sets the node's various positions and sizings based upon the containing outer width and height.
-func (l *Layout) layoutNode(n *Node, outerX, outerY, outerWidth, outerHeight float64) {
-	nodeWidth := outerWidth
-	nodeHeight := outerHeight
+func (l *Layout) layoutNode(n *Node, ctx LayoutContext) {
+	nodeWidth := ctx.OuterWidth
+	nodeHeight := ctx.OuterHeight
 	nodeX := 0.0
 	nodeY := 0.0
 
@@ -652,10 +657,10 @@ func (l *Layout) layoutNode(n *Node, outerX, outerY, outerWidth, outerHeight flo
 	}
 
 	if !skipWidth && n.Width != "" {
-		nodeWidth = stringToPosition(l, n.Width, outerWidth, false)
+		nodeWidth = stringToPosition(l, n.Width, ctx.OuterWidth, false)
 	}
 	if !skipHeight && n.Height != "" {
-		nodeHeight = stringToPosition(l, n.Height, outerHeight, true)
+		nodeHeight = stringToPosition(l, n.Height, ctx.OuterHeight, true)
 	}
 
 	// Allow the widget to layout its final size.
@@ -694,11 +699,11 @@ func (l *Layout) layoutNode(n *Node, outerX, outerY, outerWidth, outerHeight flo
 			oxs.AssignOriginX(originX)
 		}
 		if n.X != "" {
-			nodeX = stringToPosition(l, n.X, outerWidth, false)
+			nodeX = stringToPosition(l, n.X, ctx.OuterWidth, false)
 			if xs, ok := n.Widget.(assigners.X); ok {
-				xs.AssignX(outerX + nodeX + originX)
+				xs.AssignX(ctx.OuterX + nodeX + originX)
 			}
-			n.x = outerX + nodeX + originX
+			n.x = ctx.OuterX + nodeX + originX
 		}
 	}
 	if !skipY {
@@ -707,11 +712,11 @@ func (l *Layout) layoutNode(n *Node, outerX, outerY, outerWidth, outerHeight flo
 			oys.AssignOriginY(originY)
 		}
 		if n.Y != "" {
-			nodeY = stringToPosition(l, n.Y, outerHeight, true)
+			nodeY = stringToPosition(l, n.Y, ctx.OuterHeight, true)
 			if ys, ok := n.Widget.(assigners.Y); ok {
-				ys.AssignY(outerY + nodeY + originY)
+				ys.AssignY(ctx.OuterY + nodeY + originY)
 			}
-			n.y = outerY + nodeY + originY
+			n.y = ctx.OuterY + nodeY + originY
 		}
 	}
 }
