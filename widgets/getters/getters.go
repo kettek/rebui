@@ -25,6 +25,11 @@ type Obfuscated interface {
 	GetObfuscation() bool
 }
 
+// Disabled is an interface for getting the disabled state of an element.
+type Disabled interface {
+	GetDisabled() bool
+}
+
 // BorderWidth is an interface for getting the border width of an element.
 type BorderWidth interface {
 	GetBorderWidth() float64

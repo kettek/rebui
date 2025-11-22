@@ -4,10 +4,14 @@ package widgets
 type Basic struct {
 	X, Y, Width, Height float64
 	OriginX, OriginY    float64
+	Disabled            bool
 }
 
 // Hit returns true if the given x and y coordinates are within the bounds of the element.
 func (b *Basic) Hit(x, y float64) bool {
+	if b.Disabled {
+		return false
+	}
 	return x >= b.X && x <= b.X+b.Width && y >= b.Y && y <= b.Y+b.Height
 }
 
@@ -59,4 +63,14 @@ func (b *Basic) AssignOriginX(x float64) {
 // AssignOriginY sets the origin y position of the element.
 func (b *Basic) AssignOriginY(y float64) {
 	b.OriginY = y
+}
+
+// AssignDisabled sets the disabled state of the element.
+func (b *Basic) AssignDisabled(v bool) {
+	b.Disabled = v
+}
+
+// GetDisabled returns the disabled state of the element.
+func (b *Basic) GetDisabled() bool {
+	return b.Disabled
 }

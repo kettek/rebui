@@ -628,6 +628,9 @@ func (l *Layout) generateNode(n *Node) {
 					log.Println(err)
 				}
 			}
+			if ds, ok := n.Widget.(assigners.Disable); ok {
+				ds.AssignDisabled(n.Disabled)
+			}
 		}
 	}
 	// Ensure parent<->child relationships.
@@ -983,7 +986,6 @@ func (l *Layout) processEvent(e Event) {
 			}
 		}
 	}
-
 }
 
 func fallback[T comparable](a, b T) T {

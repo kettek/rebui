@@ -75,6 +75,12 @@ type AssignerWidth = assigners.Width
 // AssignerHeight is an alias.
 type AssignerHeight = assigners.Height
 
+// AssignerDisable is an alias.
+type AssignerDisable = assigners.Disable
+
+// GetterDisabled is an alias.
+type GetterDisabled = getters.Disabled
+
 // ReceiverPointerMove is an alias.
 type ReceiverPointerMove = receivers.PointerMove
 

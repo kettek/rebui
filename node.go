@@ -31,6 +31,7 @@ type Node struct {
 	FocusIndex      int
 	Children        Nodes
 	Hidden          bool
+	Disabled        bool
 	Parent          *Node // Hmm... uncertain if this paradigm is wise.
 	nodeHooks
 }

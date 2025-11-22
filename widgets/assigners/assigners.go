@@ -63,6 +63,11 @@ type Obfuscate interface {
 	AssignObfuscation(bool)
 }
 
+// Disable is used to set the disabled state of the given element if it is supported.
+type Disable interface {
+	AssignDisabled(bool)
+}
+
 // ImageStretch is used to set the image stretch style of the given element.
 type ImageStretch interface {
 	AssignImageStretch(style.ImageStretch)
