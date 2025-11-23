@@ -66,3 +66,8 @@ type KeyRelease interface {
 type KeyInput interface {
 	HandleKeyInput(*events.KeyInput)
 }
+
+// Generate is used when an element is generated. This only happens once.
+type Generate interface {
+	HandleGenerate()
+}

@@ -105,6 +105,9 @@ type ReceiverGlobalRelease = receivers.PointerGlobalRelease
 // ReceiverPointerPressed is an alias.
 type ReceiverPointerPressed = receivers.PointerPressed
 
+// ReceiverGenerate is an anlias.
+type ReceiverGenerate = receivers.Generate
+
 // HitChecker checks if the given coordinate hits the target element.
 type HitChecker interface {
 	Hit(x, y float64) bool

@@ -652,6 +652,10 @@ func (l *Layout) generateNode(n *Node) {
 	for _, n2 := range n.Children {
 		n2.Parent = n
 	}
+	// Call any generate handlers.
+	if gh, ok := n.Widget.(receivers.Generate); ok {
+		gh.HandleGenerate()
+	}
 }
 
 // fixTemplateNodeIDs prepends the passed parentID to the node's ID. As part of this, it also checks for and makes any relative position calls (e.g., "after neighbor", "50% of neighbor", etc.) to also have the parentID prepended to those calls. e.g., "at sibling" -> "at parentID__sibling"
