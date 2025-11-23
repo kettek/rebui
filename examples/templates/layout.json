@@ -1,0 +1,13 @@
+[
+  {
+    "ID": "tempie",
+    "Type": "Template",
+    "Source": "pair",
+    "X": "50%",
+    "Y": "50%",
+    "OriginX": "-50%",
+    "OriginY": "-50%",
+    "Width": "50%",
+    "Height": "50%"
+  }
+]

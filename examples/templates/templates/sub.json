@@ -1,0 +1,9 @@
+[
+  {
+    "ID": "subpanel",
+    "Type": "Button",
+    "Text": "Nested!",
+    "Width": "100%",
+    "Height": "100%"
+  }
+]

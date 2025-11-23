@@ -28,11 +28,15 @@ type Node struct {
 	HorizontalAlign Alignment
 	ImageStretch    ImageStretch
 	Image           string // ???
+	Source          string // TODO: maybe merge with Image? This is only used by Templates atm.
 	FocusIndex      int
 	Children        Nodes
 	Hidden          bool
 	Disabled        bool
 	Parent          *Node // Hmm... uncertain if this paradigm is wise.
+	// Note: The following two values are hacky but are necessary for our implementation of templates...
+	isRelativeX bool // Whether or not this element uses "after/before/at/of" for X
+	isRelativeY bool // Whether or not this element uses "after/before/at/of" for Y
 	nodeHooks
 }
 

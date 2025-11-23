@@ -37,8 +37,24 @@ func LoadFont(path string) (text.Face, error) {
 	return nil, ErrNoFontLoader
 }
 
+var templateLoader func(name string) (Nodes, error)
+
+// SetTemplateLoader sets the function to load a template by path.
+func SetTemplateLoader(loader func(path string) (Nodes, error)) {
+	templateLoader = loader
+}
+
+// LoadTemplate loads the given path using the loader set in SetTemplateLoader
+func LoadTemplate(path string) (Nodes, error) {
+	if templateLoader != nil {
+		return templateLoader(path)
+	}
+	return nil, ErrNoTemplateLoader
+}
+
 // Errors
 var (
-	ErrNoImageLoader = errors.New("no image loader set")
-	ErrNoFontLoader  = errors.New("no font loader set")
+	ErrNoImageLoader    = errors.New("no image loader set")
+	ErrNoFontLoader     = errors.New("no font loader set")
+	ErrNoTemplateLoader = errors.New("no template loader set")
 )

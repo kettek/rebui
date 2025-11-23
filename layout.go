@@ -612,7 +612,7 @@ func (l *Layout) generateNode(n *Node) {
 			if n.FontSize != "" {
 				if fs, ok := n.Widget.(assigners.FontSize); ok {
 					if ff, ok := style.CurrentTheme().FontFace.(*text.GoTextFace); ok {
-						size := stringToPosition(l, n.FontSize, ff.Size, true) // FIXME: This re-use is goofy, as it allows unintended at/after usage.
+						size, _ := stringToPosition(l, n.FontSize, ff.Size, true) // FIXME: This re-use is goofy, as it allows unintended at/after usage.
 						fs.AssignFontSize(size)
 					}
 				}
@@ -631,12 +631,56 @@ func (l *Layout) generateNode(n *Node) {
 			if ds, ok := n.Widget.(assigners.Disable); ok {
 				ds.AssignDisabled(n.Disabled)
 			}
+			// Special handler for templates -- we want to append their target template as children and create new IDs based on our own + their id.
+			if _, ok := n.Widget.(getters.Template); ok {
+				template, err := LoadTemplate(n.Source)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				for _, n2 := range template {
+					n3 := copyNode(*n2)
+					l.fixTemplateNodeIDs(n.ID, &n3)
+					// Now iterate through our children and fix their IDs.
+					l.generateNode(&n3) // FIXME: This might be terrible, as this is also called during AddNode...
+					n.Children = append(n.Children, &n3)
+				}
+			}
 		}
 	}
 	// Ensure parent<->child relationships.
 	for _, n2 := range n.Children {
 		n2.Parent = n
 	}
+}
+
+// fixTemplateNodeIDs prepends the passed parentID to the node's ID. As part of this, it also checks for and makes any relative position calls (e.g., "after neighbor", "50% of neighbor", etc.) to also have the parentID prepended to those calls. e.g., "at sibling" -> "at parentID__sibling"
+func (l *Layout) fixTemplateNodeIDs(parentID string, n *Node) {
+	id := parentID + "__" + n.ID
+	for _, n2 := range n.Children {
+		l.fixTemplateNodeIDs(id, n2)
+	}
+	r := regexp.MustCompile("(of|at|after|before)[\\t\\s](.[^\\t\\s])")
+
+	replaceID := func(orig, prepend string) string {
+		if orig == "" {
+			return ""
+		}
+		result := r.FindStringSubmatchIndex(orig)
+		if len(result) < 6 {
+			return orig
+		}
+		return orig[:result[0]] + orig[result[0]:result[3]] + " " + prepend + "__" + orig[result[4]:result[5]] + orig[result[5]:]
+	}
+
+	n.X = replaceID(n.X, parentID)
+	n.Y = replaceID(n.Y, parentID)
+	n.Width = replaceID(n.Width, parentID)
+	n.Height = replaceID(n.Height, parentID)
+	n.OriginX = replaceID(n.OriginX, parentID)
+	n.OriginY = replaceID(n.OriginY, parentID)
+	n.FontSize = replaceID(n.FontSize, parentID)
+	n.ID = id
 }
 
 // layoutNode sets the node's various positions and sizings based upon the containing outer width and height.
@@ -660,10 +704,10 @@ func (l *Layout) layoutNode(n *Node, ctx LayoutContext) {
 	}
 
 	if !skipWidth && n.Width != "" {
-		nodeWidth = stringToPosition(l, n.Width, ctx.OuterWidth, false)
+		nodeWidth, _ = stringToPosition(l, n.Width, ctx.OuterWidth, false)
 	}
 	if !skipHeight && n.Height != "" {
-		nodeHeight = stringToPosition(l, n.Height, ctx.OuterHeight, true)
+		nodeHeight, _ = stringToPosition(l, n.Height, ctx.OuterHeight, true)
 	}
 
 	// Allow the widget to layout its final size.
@@ -697,29 +741,46 @@ func (l *Layout) layoutNode(n *Node, ctx LayoutContext) {
 
 	if !skipX {
 		// Origin uses the node's own width and height to determine offsets.
-		originX := stringToPosition(l, n.OriginX, nodeWidth, false)
+		originX, _ := stringToPosition(l, n.OriginX, nodeWidth, false)
 		if oxs, ok := n.Widget.(assigners.OriginX); ok {
 			oxs.AssignOriginX(originX)
 		}
 		if n.X != "" {
-			nodeX = stringToPosition(l, n.X, ctx.OuterWidth, false)
-			if xs, ok := n.Widget.(assigners.X); ok {
-				xs.AssignX(ctx.OuterX + nodeX + originX)
-			}
-			n.x = ctx.OuterX + nodeX + originX
+			nodeX, n.isRelativeX = stringToPosition(l, n.X, ctx.OuterWidth, false)
+		} else {
+			nodeX, n.isRelativeX = 0, false
+		}
+		// Only add outer x if we're not relative (e.g., at/after/before/of)
+		if !n.isRelativeX {
+			n.x = ctx.OuterX
+		} else {
+			n.x = 0
+		}
+		n.x += nodeX + originX
+
+		if xs, ok := n.Widget.(assigners.X); ok {
+			xs.AssignX(n.x)
 		}
 	}
 	if !skipY {
-		originY := stringToPosition(l, n.OriginY, nodeHeight, true)
+		originY, _ := stringToPosition(l, n.OriginY, nodeHeight, true)
 		if oys, ok := n.Widget.(assigners.OriginY); ok {
 			oys.AssignOriginY(originY)
 		}
 		if n.Y != "" {
-			nodeY = stringToPosition(l, n.Y, ctx.OuterHeight, true)
-			if ys, ok := n.Widget.(assigners.Y); ok {
-				ys.AssignY(ctx.OuterY + nodeY + originY)
-			}
-			n.y = ctx.OuterY + nodeY + originY
+			nodeY, n.isRelativeY = stringToPosition(l, n.Y, ctx.OuterHeight, true)
+		} else {
+			nodeY, n.isRelativeY = 0, false
+		}
+		if !n.isRelativeY {
+			n.y = ctx.OuterY
+		} else {
+			n.y = 0
+		}
+		n.y += nodeY + originY
+
+		if ys, ok := n.Widget.(assigners.Y); ok {
+			ys.AssignY(n.y)
 		}
 	}
 }
@@ -1040,30 +1101,30 @@ func stringToColor(s string, fallback color.Color) color.Color {
 	return color.Black
 }
 
-func stringToPosition(l *Layout, s string, outer float64, vertical bool) float64 {
+func stringToPosition(l *Layout, s string, outer float64, vertical bool) (value float64, relative bool) {
 	if s == "" {
-		return 0
+		return 0, false
 	}
 	if strings.HasPrefix(s, "after ") {
 		after := l.GetByID(s[6:])
 		if after != nil {
 			if vertical {
-				return after.y + after.height
+				return after.y + after.height, true
 			}
-			return after.x + after.width
+			return after.x + after.width, true
 		}
 	} else if strings.HasPrefix(s, "at ") {
 		at := l.GetByID(s[3:])
 		if at != nil {
 			if vertical {
-				return at.y
+				return at.y, true
 			}
-			return at.x
+			return at.x, true
 		}
 	} else if s[len(s)-1] == '%' {
 		percent := s[:len(s)-1]
 		p, _ := strconv.ParseFloat(percent, 64)
-		return (p / 100) * outer
+		return (p / 100) * outer, false // This feels like it should be true, but we only use relative for X/Y outer adjustments...
 	} else {
 		reg := regexp.MustCompile(`(\d+)%\sof\s(.*)$`)
 
@@ -1075,13 +1136,13 @@ func stringToPosition(l *Layout, s string, outer float64, vertical bool) float64
 			p = (p / 100)
 			if target != nil {
 				if vertical {
-					return target.height * p
+					return target.height * p, true
 				}
-				return target.width * p
+				return target.width * p, true
 			}
 		}
 	}
 	// Finally, let's just try to get non %
 	p, _ := strconv.ParseFloat(s, 64)
-	return p
+	return p, false
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "ID": "label",
+    "Type": "Label",
+    "Text": "Label",
+    "Width": "25%",
+    "Height": "50%"
+  },
+  {
+    "ID": "button",
+    "Type": "Button",
+    "Text": "clickie",
+    "X": "after label",
+    "Width": "75%",
+    "Height": "50%"
+  },
+  {
+    "ID": "sub",
+    "Type": "Template",
+    "Source": "sub",
+    "Y": "after button",
+    "X": "at label",
+    "Width": "100%",
+    "Height": "50%"    
+  }
+]

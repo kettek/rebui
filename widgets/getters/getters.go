@@ -34,3 +34,8 @@ type Disabled interface {
 type BorderWidth interface {
 	GetBorderWidth() float64
 }
+
+// Template is an interface to indicate the given element is a template.
+type Template interface {
+	IsTemplate()
+}
