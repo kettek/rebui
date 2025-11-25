@@ -1,7 +1,7 @@
 package rebui
 
 import (
-	"github.com/bzick/tokenizer"
+	"github.com/kettek/tokenizer"
 )
 
 const (

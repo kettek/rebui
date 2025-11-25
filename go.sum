@@ -1,6 +1,4 @@
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/bzick/tokenizer v1.4.10 h1:/kHgB4Z3v7cB7tQOeCYyl+PmQay7LPh8cvVoJrp7Jx4=
-github.com/bzick/tokenizer v1.4.10/go.mod h1:HYrKg9GGNb0/MCf7eGmz6ulvsxFfgyN+Ve3MqV2h5Zs=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325 h1:Gk1XUEttOk0/hb6Tq3WkmutWa0ZLhNn/6fc6XZpM7tM=
 github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325/go.mod h1:ulhSQcbPioQrallSuIzF8l1NKQoD7xmMZc5NxzibUMY=
@@ -20,6 +18,8 @@ github.com/jezek/xgb v1.1.1 h1:bE/r8ZZtSv7l9gk6nU0mYx51aXrvnyb44892TwSaqS4=
 github.com/jezek/xgb v1.1.1/go.mod h1:nrhwO0FX/enq75I7Y7G8iN1ubpSGZEiA3v9e9GyRFlk=
 github.com/kettek/tokenizer v0.0.0-20251125080327-4ceba5f1b6d3 h1:hr+1X4zaP0lUPCaJX3yyOewtK0vUaZ5Xq113uxXa1RQ=
 github.com/kettek/tokenizer v0.0.0-20251125080327-4ceba5f1b6d3/go.mod h1:HYrKg9GGNb0/MCf7eGmz6ulvsxFfgyN+Ve3MqV2h5Zs=
+github.com/kettek/tokenizer v0.0.0-20251125082402-ee2a4ae6a06f h1:L0Xx/ek3GLYWdAHUCcroTGTy8q2st3v+EIsR4k/SHPQ=
+github.com/kettek/tokenizer v0.0.0-20251125082402-ee2a4ae6a06f/go.mod h1:hXLlavit4EjoyrXwBYyH28BA1RyDaV0XJscEJQvRwKE=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
 github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

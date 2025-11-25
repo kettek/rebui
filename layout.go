@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bzick/tokenizer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -20,6 +19,7 @@ import (
 	"github.com/kettek/rebui/widgets/assigners"
 	"github.com/kettek/rebui/widgets/getters"
 	"github.com/kettek/rebui/widgets/receivers"
+	"github.com/kettek/tokenizer"
 )
 
 // Layout is used to control layout and manage evts.
