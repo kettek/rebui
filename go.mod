@@ -3,10 +3,13 @@ module github.com/kettek/rebui
 go 1.24.0
 
 require (
+	github.com/bzick/tokenizer v1.4.10
 	github.com/hajimehoshi/ebiten/v2 v2.8.6
 	golang.design/x/clipboard v0.7.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+replace github.com/bzick/tokenizer v1.4.10 => github.com/kettek/tokenizer v0.0.0-20251125080327-4ceba5f1b6d3
 
 require (
 	github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325 // indirect

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bzick/tokenizer"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -38,6 +39,7 @@ type Layout struct {
 	lastMouseY          int
 	lastWidth           float64
 	lastHeight          float64
+	parser              *tokenizer.Tokenizer
 }
 
 type key struct {
@@ -1109,44 +1111,81 @@ func stringToPosition(l *Layout, s string, outer float64, vertical bool) (value 
 	if s == "" {
 		return 0, false
 	}
-	if strings.HasPrefix(s, "after ") {
-		after := l.GetByID(s[6:])
-		if after != nil {
-			if vertical {
-				return after.y + after.height, true
-			}
-			return after.x + after.width, true
-		}
-	} else if strings.HasPrefix(s, "at ") {
-		at := l.GetByID(s[3:])
-		if at != nil {
-			if vertical {
-				return at.y, true
-			}
-			return at.x, true
-		}
-	} else if s[len(s)-1] == '%' {
-		percent := s[:len(s)-1]
-		p, _ := strconv.ParseFloat(percent, 64)
-		return (p / 100) * outer, false // This feels like it should be true, but we only use relative for X/Y outer adjustments...
-	} else {
-		reg := regexp.MustCompile(`(\d+)%\sof\s(.*)$`)
 
-		matches := reg.FindStringSubmatch(s)
-		if len(matches) == 3 {
-			percent := matches[1]
-			target := l.GetByID(matches[2])
-			p, _ := strconv.ParseFloat(percent, 64)
-			p = (p / 100)
-			if target != nil {
-				if vertical {
-					return target.height * p, true
-				}
-				return target.width * p, true
+	stream := tokenParser.ParseString(s)
+	defer stream.Close()
+	var relation, unit int
+	var target string
+	var val float64
+
+	for stream.IsValid() {
+		token := stream.CurrentToken()
+		if token.Is(tUnit) {
+			switch token.ValueString() {
+			case "%":
+				unit = unitPercentage
+			case "vw":
+				unit = unitVW
+			case "vh":
+				unit = unitVH
 			}
+		} else if token.Is(tRelation) {
+			switch token.ValueString() {
+			case "at":
+				relation = relationAt
+			case "after":
+				relation = relationAfter
+			case "of":
+				relation = relationOf
+			}
+		} else if token.Is(tokenizer.TokenKeyword) {
+			target = token.ValueString()
+		} else if token.Is(tokenizer.TokenFloat) {
+			val = token.ValueFloat64()
+		} else if token.Is(tokenizer.TokenInteger) {
+			val = float64(token.ValueInt64())
 		}
+		stream.GoNext()
 	}
-	// Finally, let's just try to get non %
-	p, _ := strconv.ParseFloat(s, 64)
-	return p, false
+
+	switch relation {
+	case relationNone:
+		// No relations, we be lonely bois.
+		switch unit {
+		case unitPixels:
+			return val, false
+		case unitPercentage:
+			return (val / 100) * outer, false // This feels like it should be true, but we only use relative for X/Y outer adjustments...
+		case unitVW:
+			// TODO
+		case unitVH:
+			// TODO
+		default:
+			panic("oh no")
+		}
+	case relationAfter:
+		after := l.GetByID(target)
+		if vertical {
+			return after.y + after.height, true
+		}
+		return after.x + after.width, true
+	case relationAt:
+		at := l.GetByID(target)
+		if vertical {
+			return at.y, true
+		}
+		return at.x, true
+	case relationOf:
+		val = val / 100
+		of := l.GetByID(target)
+		if vertical {
+			return of.height * val, true
+		}
+		return of.width * val, true
+	default:
+		panic("oh no")
+	}
+
+	// Dis do be unreachable.
+	return 0, false
 }
